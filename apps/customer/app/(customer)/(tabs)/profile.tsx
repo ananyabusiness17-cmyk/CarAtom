@@ -127,8 +127,6 @@ export default function ProfileScreen() {
   );
 }
 
-}
-
 function GarageHistory() {
   const vehicles = useQuery({
     queryKey: ['me', 'vehicles'],
@@ -142,6 +140,9 @@ function GarageHistory() {
   });
   if (vehicles.isLoading) {
     return <Text style={styles.meta}>Loading garage…</Text>;
+  }
+  if (vehicles.isError) {
+    return <Text style={styles.meta}>Could not load garage.</Text>;
   }
   if (!vehicles.data?.items.length) {
     return <Text style={styles.meta}>No saved vehicles yet.</Text>;

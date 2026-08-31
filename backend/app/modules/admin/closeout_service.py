@@ -183,7 +183,9 @@ class CloseoutService:
 
     def _qc_incomplete(self) -> list[CloseoutItemOut]:
         visits = list(
-            self.db.scalars(select(Visit).where(Visit.status.in_({"QC_PENDING", "QC_FAILED"}))).all()
+            self.db.scalars(
+                select(Visit).where(Visit.status.in_({"QC_PENDING", "QC_FAILED"}))
+            ).all()
         )
         out: list[CloseoutItemOut] = []
         for visit in visits:

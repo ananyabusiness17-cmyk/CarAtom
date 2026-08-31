@@ -271,6 +271,8 @@ class DispatchService:
                         status=visit.status,
                         scheduled_start_at=visit.scheduled_start_at,
                         scheduled_end_at=visit.scheduled_end_at,
+                        actual_start_at=visit.actual_start_at,
+                        actual_finish_at=visit.actual_finish_at,
                         latitude=float(lat) if lat is not None else None,
                         longitude=float(lng) if lng is not None else None,
                     )

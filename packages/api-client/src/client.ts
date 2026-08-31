@@ -929,7 +929,7 @@ export class ApiClient {
       `/v1/admin/vehicles/${vehicleId}/history`,
       VehicleServiceLogListSchema,
       { auth: true },
-    });
+    );
   }
 
   async getAllowedOverrideActions(jobCardId: string): Promise<AllowedOverrideActions> {

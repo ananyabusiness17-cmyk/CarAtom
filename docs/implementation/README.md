@@ -1,6 +1,6 @@
 # CARATOM Implementation Phases — Master Index
 
-This directory contains **12 standalone phase execution specifications** plus this orchestration README. Each phase is one Markdown file designed for sequential execution in Cursor.
+This directory contains **13 standalone phase execution specifications** plus this orchestration README. Each phase is one Markdown file designed for sequential execution in Cursor.
 
 **Authority:** Product UI/flows follow the walkthrough (embedded inline in phase docs). Commercial invariants follow [`01-product-constitution.md`](../architecture/01-product-constitution.md). Conflicts resolved per [`AUDIT-REPORT.md`](../AUDIT-REPORT.md).
 
@@ -28,6 +28,7 @@ Read this README
   → Execute PHASE-02
   → ...
   → Execute PHASE-12
+  → Execute PHASE-13 (ops dispatch / kits / closeout — post-launch product)
   → Production-ready application
 ```
 
@@ -51,6 +52,7 @@ flowchart TD
   P10[Phase10 AdminMobile]
   P11[Phase11 Hardening]
   P12[Phase12 Production]
+  P13[Phase13 OpsBring]
 
   P01 --> P02 --> P03
   P03 --> P04
@@ -68,6 +70,7 @@ flowchart TD
   P09 --> P11
   P10 --> P11
   P11 --> P12
+  P12 --> P13
 ```
 
 ---
@@ -88,6 +91,7 @@ flowchart TD
 | 10 | [PHASE-10-admin-mobile-ops-dispatch.md](./PHASE-10-admin-mobile-ops-dispatch.md) | Admin mobile: board, dispatch, override lite | 04, 09 | Mobile ops |
 | 11 | [PHASE-11-notifications-integrations-hardening.md](./PHASE-11-notifications-integrations-hardening.md) | Push, deep links, perf, error recovery | 08, 09, 10 | Platform hardening |
 | 12 | [PHASE-12-production-release-operations.md](./PHASE-12-production-release-operations.md) | Release, audits, store + private distribution | 11 | In-repo production-ready; live cutover is operator-owned ([docs/release](../release/README.md)) |
+| 13 | [PHASE-13-ops-dispatch-kits-closeout.md](./PHASE-13-ops-dispatch-kits-closeout.md) | Safe OSS ops bring: dispatch board, kits, closeout, actuals, vehicle history | 12 | Desk + field ops density; slot holds unchanged |
 
 ---
 
@@ -124,6 +128,7 @@ flowchart TD
 | Screens | Phase |
 |---------|-------|
 | `inventory`, `catalog`, `people`, `tech`, `money`, `book`, `used`, `custparts`, `more`, `job`, `estimate` | 09 |
+| `dispatch` (lanes, day grid, static map, mass assign), `closeout` | 13 |
 
 ---
 
@@ -141,6 +146,7 @@ flowchart TD
 | Invoice, Razorpay webhook, `/v1/reviews`, notifications read | 08 |
 | `/v1/admin/catalog`, inventory, people, payments, audit, override | 09 |
 | `/v1/admin/dispatch`, assign (mobile UX) | 10 |
+| Closeout queues, catalog kits, visit kit, mass-assign, vehicle history | 13 |
 | Notification delivery workers, deep links | 11 |
 | Production config, rate limits | 12 |
 
@@ -164,6 +170,7 @@ Full endpoint list: [`09-api-contracts.md`](../architecture/09-api-contracts.md)
 | `inventory_*` | 09 |
 | `invoices`, `invoice_line_items`, `payments`, `payment_events`, `refunds` | 08 |
 | `reviews`, `notifications`, `audit_logs`, `outbox_events` | 04–11 |
+| `catalog_kit_lines`, `vehicle_service_logs`; visit actuals; `job_parts.intent` | 13 |
 
 Full schema: [`08-data-model.md`](../architecture/08-data-model.md).
 
@@ -187,6 +194,7 @@ Full schema: [`08-data-model.md`](../architecture/08-data-model.md).
 | Admin mobile dispatch | 10 |
 | Push notifications + EAS Update | 11 |
 | App Store + private distribution | 12 |
+| Dispatch board, kits, closeout, actuals, vehicle history | 13 |
 
 ---
 

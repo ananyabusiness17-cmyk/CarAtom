@@ -33,6 +33,8 @@ export const DispatchLaneVisitSchema = z.object({
   status: z.string(),
   scheduled_start_at: z.string(),
   scheduled_end_at: z.string(),
+  actual_start_at: z.string().nullable().optional(),
+  actual_finish_at: z.string().nullable().optional(),
   latitude: z.number().nullable().optional(),
   longitude: z.number().nullable().optional(),
 });

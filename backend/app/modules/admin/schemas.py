@@ -233,6 +233,8 @@ class DispatchLaneVisitOut(BaseModel):
     status: str
     scheduled_start_at: datetime
     scheduled_end_at: datetime
+    actual_start_at: datetime | None = None
+    actual_finish_at: datetime | None = None
     latitude: float | None = None
     longitude: float | None = None
 

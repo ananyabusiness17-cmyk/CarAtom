@@ -672,9 +672,9 @@ class VisitService:
         if job is None or not job.vehicle_id:
             return
         from app.db.models import ServiceOffering
+        from app.modules.bookings.models import Booking
         from app.modules.invoices.models import Invoice
         from app.modules.vehicles.models import VehicleServiceLog
-        from app.modules.bookings.models import Booking
 
         offering = self.db.get(ServiceOffering, job.service_offering_id)
         booking = self.db.get(Booking, visit.booking_id)

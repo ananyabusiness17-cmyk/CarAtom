@@ -34,7 +34,7 @@ export default function CloseoutPage() {
             key={item.id}
             type="button"
             onClick={() => setQueue(item.id)}
-            className={`h-10 px-3 text-sm font-semibold ${
+            className={`h-11 px-3 text-sm font-semibold ${
               queue === item.id ? 'border-b-2 border-brand-strong text-brand-strong' : 'text-muted'
             }`}
           >

@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 
 from app.db.models import RepairOffering, ServiceOffering
 from app.modules.catalog.kit_models import CatalogKitLine
+from app.modules.catalog.seed import GS_SLUG
 from app.modules.inventory.models import InventorySku, InventoryStock
 from app.modules.job_cards.models import JobCard
 from app.modules.technicians.models import Technician
@@ -89,7 +90,9 @@ class KitService:
     def __init__(self, db: Session) -> None:
         self.db = db
 
-    def kit_for_job(self, job: JobCard, *, van_code: str | None, visit_id: str | None) -> VisitKitOut:
+    def kit_for_job(
+        self, job: JobCard, *, van_code: str | None, visit_id: str | None
+    ) -> VisitKitOut:
         van = (van_code or "VAN_A").upper()
         if van not in {"VAN_A", "VAN_B", "VAN_C"}:
             van = "VAN_A"
@@ -131,7 +134,9 @@ class KitService:
                     state = "ON_VAN"
                 elif wh_qty >= row.quantity:
                     state = "IN_WH"
-                    warnings.append(f"{sku.name} is in warehouse — transfer to {van} before the run.")
+                    warnings.append(
+                        f"{sku.name} is in warehouse — transfer to {van} before the run."
+                    )
                 else:
                     state = "SHORT"
                     warnings.append(f"{sku.name} is short on {van} and warehouse.")
@@ -284,7 +289,7 @@ def seed_catalog_kits(db: Session) -> None:
                     sort_order=0,
                 )
             )
-    gs = db.scalar(select(ServiceOffering).where(ServiceOffering.slug == "general-service-health-report"))
+    gs = db.scalar(select(ServiceOffering).where(ServiceOffering.slug == GS_SLUG))
     if gs is not None:
         labour = db.scalar(
             select(CatalogKitLine).where(

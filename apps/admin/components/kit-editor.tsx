@@ -109,7 +109,7 @@ export function KitEditor({
         <label className="text-sm">
           Kind
           <select
-            className="mt-1 block h-10 rounded-md border border-border px-2"
+            className="mt-1 block h-11 rounded-md border border-border px-2"
             value={kind}
             onChange={(event) => setKind(event.target.value as 'PART' | 'LABOUR')}
           >
@@ -121,7 +121,7 @@ export function KitEditor({
           <label className="text-sm">
             SKU
             <select
-              className="mt-1 block h-10 min-w-[12rem] rounded-md border border-border px-2"
+              className="mt-1 block h-11 min-w-[12rem] rounded-md border border-border px-2"
               value={skuId}
               onChange={(event) => setSkuId(event.target.value)}
             >

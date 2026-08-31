@@ -27,6 +27,7 @@ export const adminKeys = {
   jobUsage: (id: string) => ['admin', 'job-usage', id] as const,
   audit: (filters: AuditFilters) => ['admin', 'audit', filters] as const,
   dispatch: ['admin', 'dispatch'] as const,
+  outbox: (status: string) => ['admin', 'outbox', status] as const,
   closeout: (queue: string) => ['admin', 'closeout', queue] as const,
   catalogKit: (ownerType: string, ownerId: string) =>
     ['admin', 'catalog-kit', ownerType, ownerId] as const,

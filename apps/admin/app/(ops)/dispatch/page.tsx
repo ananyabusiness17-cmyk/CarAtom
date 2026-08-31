@@ -158,7 +158,7 @@ export default function DispatchPage() {
         <div className="mt-4 flex flex-wrap items-center gap-2 rounded-md border border-border bg-surface p-3">
           <p className="text-sm font-semibold">{selected.size} selected</p>
           <select
-            className="h-10 rounded-md border border-border px-3 text-sm"
+            className="h-11 rounded-md border border-border px-3 text-sm"
             value={massTech}
             onChange={(event) => setMassTech(event.target.value)}
             aria-label="Technician for mass assign"
@@ -318,7 +318,8 @@ function DayGrid({
 
 function hourFor(value?: string): number | null {
   if (!value) return null;
-  const hour = new Date(value).getHours();
+  const match = value.match(/T(\d{2}):/);
+  const hour = match ? Number(match[1]) : new Date(value).getHours();
   if (hour < 9) return 8;
   if (hour < 11) return 10;
   if (hour < 13) return 12;
@@ -375,10 +376,13 @@ function StaticMap({
             <Link
               key={pin.id}
               href={`/jobs/${pin.jobId}`}
-              className="absolute h-3 w-3 rounded-full bg-brand-strong"
+              aria-label={`${pin.ref} · ${pin.label}`}
+              className="absolute flex h-11 w-11 -translate-x-1/2 -translate-y-1/2 items-center justify-center"
               style={{ left: `${8 + x * 84}%`, top: `${8 + y * 84}%` }}
               title={`${pin.ref} · ${pin.label}`}
-            />
+            >
+              <span className="h-3 w-3 rounded-full bg-brand-strong" />
+            </Link>
           );
         })}
       </div>

@@ -56,11 +56,7 @@ export default function DispatchScreen() {
 
   const assignError =
     assign.error instanceof ApiError
-      ? assign.error.problem?.code === 'TECH_OFF_DUTY'
-        ? assign.error.message
-        : assign.error.problem?.code === 'SCHEDULE_OVERLAP'
-          ? assign.error.message
-          : assign.error.message
+      ? overlapMessage(assign.error)
       : assign.error instanceof Error
         ? assign.error.message
         : null;
@@ -173,6 +169,18 @@ export default function DispatchScreen() {
       </Modal>
     </Screen>
   );
+}
+
+function overlapMessage(err: ApiError): string {
+  if (err.problem?.code === 'SCHEDULE_OVERLAP') {
+    const details = err.problem.details as Record<string, unknown> | undefined;
+    const ref = details?.conflicting_public_ref;
+    const name = details?.technician_name;
+    if (typeof ref === 'string' && typeof name === 'string') {
+      return `Overlap with ${ref} for ${name}.`;
+    }
+  }
+  return err.message;
 }
 
 const styles = StyleSheet.create({

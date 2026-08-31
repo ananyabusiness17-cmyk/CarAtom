@@ -2,8 +2,6 @@
 
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
-
 import { Banner } from '../ui';
 import { apiClient } from '@/lib/admin-api';
 import { formatIst } from '@/lib/format-ist';
@@ -50,6 +48,15 @@ export function VisitsTab({ jobCardId }: { jobCardId: string }) {
             {'scheduled_start_at' in visit && visit.scheduled_start_at ? (
               <p className="text-xs text-muted">Scheduled {formatIst(visit.scheduled_start_at)}</p>
             ) : null}
+            {actualStamp(visit, 'actual_start_at') ? (
+              <p className="text-xs text-muted">
+                Actual start {formatIst(actualStamp(visit, 'actual_start_at')!)}
+                {lateStart(visit) ? ' · started after the window' : ''}
+              </p>
+            ) : null}
+            {actualStamp(visit, 'actual_finish_at') ? (
+              <p className="text-xs text-muted">Finished {formatIst(actualStamp(visit, 'actual_finish_at')!)}</p>
+            ) : null}
           </li>
         ))}
       </ul>
@@ -76,4 +83,20 @@ export function VisitsTab({ jobCardId }: { jobCardId: string }) {
       </div>
     </div>
   );
+}
+
+function actualStamp(
+  visit: { scheduled_start_at?: string; actual_start_at?: string | null; actual_finish_at?: string | null },
+  key: 'actual_start_at' | 'actual_finish_at',
+): string | null {
+  const value = visit[key];
+  return typeof value === 'string' ? value : null;
+}
+
+function lateStart(visit: {
+  scheduled_start_at?: string;
+  actual_start_at?: string | null;
+}): boolean {
+  if (!visit.scheduled_start_at || !visit.actual_start_at) return false;
+  return new Date(visit.actual_start_at).getTime() > new Date(visit.scheduled_start_at).getTime();
 }

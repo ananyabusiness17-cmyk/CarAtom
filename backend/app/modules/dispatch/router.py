@@ -3,9 +3,8 @@ import json
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Header
-from sqlalchemy.orm import Session
-
 from pydantic import BaseModel, Field
+from sqlalchemy.orm import Session
 
 from app.common.errors import DomainProblem
 from app.core.deps import CurrentUser, require_role
