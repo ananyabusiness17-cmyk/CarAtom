@@ -13,6 +13,7 @@ class CatalogOfferingRow(BaseModel):
     version: int = 1
     duration_minutes: int | None = None
     flow_policy: str | None = None
+    id: str | None = None
 
 
 class CatalogOverviewResponse(BaseModel):

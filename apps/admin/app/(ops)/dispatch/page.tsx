@@ -262,7 +262,7 @@ function DayGrid({
   techs,
   unassigned,
 }: {
-  techs: NonNullable<ReturnType<typeof useQuery>['data']> extends infer _T ? Awaited<ReturnType<typeof apiClient.getDispatchBoard>>['technicians'] : never;
+  techs: Awaited<ReturnType<typeof apiClient.getDispatchBoard>>['technicians'];
   unassigned: DispatchUnassignedJob[];
 }) {
   const hours = [8, 10, 12, 14, 16, 18];
@@ -392,4 +392,6 @@ function StaticMap({
           </li>
         ))}
       </ul>
-    </div>
+    </div>
+  );
+}

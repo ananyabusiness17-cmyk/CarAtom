@@ -61,9 +61,11 @@ export default function CustomerDetailPage() {
       <ul className="mb-6 grid gap-2 md:grid-cols-2">
         {(customer?.vehicles ?? []).map((vehicle, index) => {
           const rec = vehicle as Record<string, unknown>;
+          const vehicleId = String(rec.id ?? rec.vehicle_id ?? '');
           return (
-            <li key={String(rec.id ?? rec.vehicle_id ?? index)} className="rounded-md border border-border bg-surface px-3 py-2 text-sm">
-              {String(rec.label ?? rec.model ?? 'Vehicle')}
+            <li key={vehicleId || String(index)} className="rounded-md border border-border bg-surface px-3 py-2 text-sm">
+              <p>{String(rec.label ?? rec.model ?? 'Vehicle')}</p>
+              {vehicleId ? <VehicleHistory vehicleId={vehicleId} /> : null}
             </li>
           );
         })}
@@ -86,5 +88,24 @@ export default function CustomerDetailPage() {
         })}
       </ul>
     </div>
+  );
+}
+
+function VehicleHistory({ vehicleId }: { vehicleId: string }) {
+  const query = useQuery({
+    queryKey: adminKeys.vehicleHistory(vehicleId),
+    queryFn: () => apiClient.getAdminVehicleHistory(vehicleId),
+  });
+  if (query.isLoading) return <p className="text-xs text-muted">Loading history…</p>;
+  if (!query.data?.items.length) return <p className="text-xs text-muted">No service history yet.</p>;
+  return (
+    <ul className="mt-2 grid gap-1 text-xs text-muted">
+      {query.data.items.map((row) => (
+        <li key={row.id}>
+          {row.offering_slug ?? 'Visit'}
+          {row.odometer_km != null ? ` · ${row.odometer_km} km` : ''}
+        </li>
+      ))}
+    </ul>
   );
 }

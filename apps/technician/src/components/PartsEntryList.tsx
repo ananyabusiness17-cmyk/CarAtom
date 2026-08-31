@@ -7,6 +7,7 @@ export type PartRow = {
   label: string;
   quantity: number;
   notes?: string | null;
+  intent?: 'FIT' | 'REMOVE' | 'RECYCLE';
 };
 
 export function PartsEntryList({ parts }: { parts: PartRow[] }) {

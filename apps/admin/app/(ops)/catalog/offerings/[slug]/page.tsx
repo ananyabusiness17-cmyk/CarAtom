@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 
 import { useToast } from '@/components/toast';
 import { Banner, GhostButton, PageHeader, PrimaryButton, TextField } from '@/components/ui';
+import { KitEditor } from '@/components/kit-editor';
 import { apiClient } from '@/lib/admin-api';
 import { problemMessage } from '@/lib/problem';
 import { adminKeys } from '@/lib/query-keys';
@@ -49,7 +50,7 @@ export default function OfferingEditPage() {
   });
 
   return (
-    <div className="max-w-lg">
+    <div className="max-w-2xl">
       <PageHeader title={offering?.name ?? 'Offering'} subtitle={params.slug} />
       {error ? <Banner>{error}</Banner> : null}
       <div className="space-y-4">
@@ -64,6 +65,9 @@ export default function OfferingEditPage() {
           <GhostButton onClick={() => router.push('/catalog')}>Cancel</GhostButton>
         </div>
       </div>
+      {offering?.id && offering.kind === 'offering' ? (
+        <KitEditor ownerType="SERVICE_OFFERING" ownerId={offering.id} />
+      ) : null}
     </div>
   );
 }

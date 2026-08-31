@@ -36,6 +36,18 @@ export default function SkuDetailPage() {
           </li>
         ))}
       </ul>
+      <h2 className="mb-2 text-sm font-bold text-strong">Used by offerings</h2>
+      <ul className="mb-6 grid gap-1 text-sm">
+        {(query.data?.used_by ?? []).length === 0 ? (
+          <li className="text-muted">Not on a catalog kit.</li>
+        ) : (
+          (query.data?.used_by ?? []).map((row) => (
+            <li key={`${row.owner_type}-${row.owner_slug}`}>
+              {row.owner_name} · {row.owner_slug}
+            </li>
+          ))
+        )}
+      </ul>
       <h2 className="mb-2 text-sm font-bold text-strong">Movements</h2>
       <div className="overflow-x-auto rounded-md border border-border bg-surface">
         <table className="w-full text-left text-sm">

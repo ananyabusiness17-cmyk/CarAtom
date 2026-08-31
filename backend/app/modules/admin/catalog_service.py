@@ -66,6 +66,7 @@ class CatalogAdminService:
                     version=getattr(off, "version", 1) or 1,
                     duration_minutes=off.duration_minutes,
                     flow_policy=off.flow_policy,
+                    id=off.id,
                 )
             )
         rows.append(

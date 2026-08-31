@@ -10,6 +10,7 @@ export const CatalogOfferingRowSchema = z.object({
   version: z.number().int().optional(),
   duration_minutes: z.number().int().nullable().optional(),
   flow_policy: z.string().nullable().optional(),
+  id: z.string().optional(),
 });
 
 export const CatalogOverviewSchema = z.object({

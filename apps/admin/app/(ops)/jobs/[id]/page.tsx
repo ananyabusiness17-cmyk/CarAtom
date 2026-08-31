@@ -130,7 +130,7 @@ export default function JobEditorPage() {
               </div>
             </div>
           ) : null}
-          {tab === 'Visits' ? <VisitsTab /> : null}
+          {tab === 'Visits' ? <VisitsTab jobCardId={params.id} /> : null}
           {tab === 'Advisor' ? (
             <div className="rounded-md border border-border bg-surface p-4 text-sm">
               <p>Advisor case {jobQuery.data?.advisor_case_id ?? 'none'} · {jobQuery.data?.advisor_case_status ?? '—'}</p>
@@ -162,7 +162,12 @@ export default function JobEditorPage() {
             </div>
           ) : null}
           {tab === 'Money' ? (
-            <MoneyTab estimateTotal={jobQuery.data?.submitted_estimate?.total.amount_minor} />
+            <MoneyTab
+              estimateTotal={jobQuery.data?.submitted_estimate?.total.amount_minor}
+              labourTotal={jobQuery.data?.labour_total_minor}
+              partsTotal={jobQuery.data?.parts_total_minor}
+              billedPercent={jobQuery.data?.billed_percent}
+            />
           ) : null}
           {tab === 'Audit' ? (
             <ul className="grid gap-2 text-sm">
