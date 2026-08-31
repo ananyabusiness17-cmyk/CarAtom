@@ -1,0 +1,59 @@
+{
+  "expo": {
+    "name": "CARATOM Customer",
+    "slug": "caratom-customer",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": ["caratom-customer", "caratom"],
+    "platforms": ["ios", "android"],
+    "sdkVersion": "52.0.0",
+    "userInterfaceStyle": "light",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "enabled": false,
+      "checkAutomatically": "ON_LOAD",
+      "fallbackToCacheTimeout": 0
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      "expo-font",
+      "expo-notifications",
+      "expo-updates",
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "CARATOM uses your location to send roadside help to where you are."
+        }
+      ]
+    ],
+    "ios": {
+      "bundleIdentifier": "in.caratom.customer",
+      "associatedDomains": ["applinks:staging.caratom.app"],
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "CARATOM uses your location to send roadside help to where you are."
+      }
+    },
+    "android": {
+      "package": "in.caratom.customer",
+      "usesCleartextTraffic": true,
+      "permissions": ["ACCESS_COARSE_LOCATION", "ACCESS_FINE_LOCATION"],
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            {
+              "scheme": "https",
+              "host": "staging.caratom.app",
+              "pathPrefix": "/l"
+            }
+          ],
+          "category": ["BROWSABLE", "DEFAULT"]
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,7 @@
+version: 1
+intent: technician_eta
+channels:
+  push:
+    title: "Technician on the way"
+    body: "Your technician is heading to your {{service_name}} visit."
+deep_link_template: "caratom://booking/{{booking_id}}"

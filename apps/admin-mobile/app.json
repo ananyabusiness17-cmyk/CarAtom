@@ -1,0 +1,29 @@
+{
+  "expo": {
+    "name": "CARATOM Admin Mobile",
+    "slug": "caratom-admin-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": ["caratom-admin-mobile", "caratom"],
+    "platforms": ["ios", "android"],
+    "sdkVersion": "52.0.0",
+    "userInterfaceStyle": "light",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "enabled": false,
+      "checkAutomatically": "ON_LOAD",
+      "fallbackToCacheTimeout": 0
+    },
+    "plugins": ["expo-router", "expo-secure-store", "expo-font", "expo-notifications", "expo-updates"],
+    "ios": {
+      "bundleIdentifier": "in.caratom.adminmobile",
+      "associatedDomains": ["applinks:staging.caratom.app"]
+    },
+    "android": {
+      "package": "in.caratom.adminmobile",
+      "usesCleartextTraffic": true
+    }
+  }
+}

@@ -1,0 +1,12 @@
+version: 1
+intent: payment_due
+channels:
+  push:
+    title: "Payment due"
+    body: "Your {{service_name}} invoice is ready to pay."
+  sms:
+    body: "CARATOM: Payment due. Open: {{deep_link_short}}"
+  whatsapp:
+    template_name: "caratom_payment_due"
+    params: [service_name, deep_link_short]
+deep_link_template: "caratom://payment/{{invoice_id}}"

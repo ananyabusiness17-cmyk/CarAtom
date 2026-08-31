@@ -1,0 +1,7 @@
+version: 1
+intent: advisor_case_waiting
+channels:
+  push:
+    title: "Advisor case waiting"
+    body: "A customer is waiting for an advisor callback."
+deep_link_template: "caratom://advisor/{{job_card_id}}"

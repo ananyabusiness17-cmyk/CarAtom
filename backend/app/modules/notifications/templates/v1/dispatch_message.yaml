@@ -1,0 +1,7 @@
+version: 1
+intent: dispatch_message
+channels:
+  push:
+    title: "Dispatch update"
+    body: "Ops sent an update about your visit."
+deep_link_template: "caratom://visit/{{visit_id}}"

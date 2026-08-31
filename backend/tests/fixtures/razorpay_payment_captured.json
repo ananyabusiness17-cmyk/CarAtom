@@ -1,0 +1,18 @@
+{
+  "id": "evt_test_captured_1",
+  "event": "payment.captured",
+  "payload": {
+    "payment": {
+      "entity": {
+        "id": "pay_KkL2M3N4O5P6Q7",
+        "entity": "payment",
+        "amount": 0,
+        "currency": "INR",
+        "status": "captured",
+        "order_id": "ORDER_PLACEHOLDER",
+        "method": "card",
+        "captured": true
+      }
+    }
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "name": "@caratom/admin-mobile",
+  "version": "1.0.0",
+  "private": true,
+  "main": "expo-router/entry",
+  "scripts": {
+    "start": "expo start --lan --port 8083",
+    "android": "expo start --android --port 8083",
+    "ios": "expo start --ios --port 8083",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "npx tsx src/lib/requireAdminRole.test.ts && npx tsx src/lib/overrideReason.test.ts && npx tsx src/lib/safeReturnTo.test.ts && npx tsx src/config/webOpsUrls.test.ts && npx tsx src/stores/estimateDraftStore.test.ts"
+  },
+    "dependencies": {
+    "@caratom/analytics": "workspace:*",
+    "@caratom/api-client": "workspace:*",
+    "@caratom/contracts": "workspace:*",
+    "@caratom/ui-tokens": "workspace:*",
+    "@expo-google-fonts/dm-sans": "^0.2.3",
+    "@expo/vector-icons": "^14.0.4",
+    "@react-native-community/netinfo": "^11.4.1",
+    "@shopify/flash-list": "1.7.3",
+    "@supabase/supabase-js": "^2.49.1",
+    "@tanstack/react-query": "^5.102.8",
+    "expo": "~52.0.0",
+    "expo-constants": "~17.0.0",
+    "expo-font": "~13.0.0",
+    "expo-haptics": "~14.0.1",
+    "expo-linking": "~7.0.0",
+    "expo-notifications": "~0.29.14",
+    "expo-router": "~4.0.0",
+    "expo-secure-store": "~14.0.0",
+    "expo-status-bar": "~2.0.0",
+    "expo-updates": "~0.26.19",
+    "react": "18.3.1",
+    "react-native": "0.76.9",
+    "react-native-gesture-handler": "~2.20.2",
+    "react-native-safe-area-context": "4.12.0",
+    "react-native-screens": "~4.4.0",
+    "react-native-url-polyfill": "^2.0.0",
+    "zustand": "^5.0.15"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.26.0",
+    "@types/react": "~18.3.12",
+    "tsx": "^4.19.2",
+    "typescript": "5.7.3"
+  }
+}

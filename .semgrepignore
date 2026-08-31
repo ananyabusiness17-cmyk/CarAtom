@@ -1,0 +1,16 @@
+node_modules
+**/node_modules/**
+backend/.venv
+**/.venv/**
+**/.next/**
+**/.expo/**
+dist
+**/__pycache__/**
+scripts/security/bin
+**/*.min.js
+.agents/skills
+.cursor/skills
+.npmrc
+pnpm-workspace.yaml
+backend/pyproject.toml
+

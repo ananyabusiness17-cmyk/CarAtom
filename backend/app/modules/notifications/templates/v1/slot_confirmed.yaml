@@ -1,0 +1,9 @@
+version: 1
+intent: slot_confirmed
+channels:
+  push:
+    title: "Visit confirmed"
+    body: "Your {{service_name}} visit is booked."
+  sms:
+    body: "CARATOM: Visit confirmed. Open: {{deep_link_short}}"
+deep_link_template: "caratom://booking/{{booking_id}}"

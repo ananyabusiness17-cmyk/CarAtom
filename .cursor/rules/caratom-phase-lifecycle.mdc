@@ -1,0 +1,31 @@
+---
+description: Phase 2+ before/during/after lifecycle and mandatory full-codebase frontend audit
+alwaysApply: true
+---
+
+# Phase 2+ frontend lifecycle
+
+Applies to **Phase 2 through the final phase**. Skip this lifecycle only for pure backend/infra with no UI. This setup task must not implement Phase 2.
+
+Load skill `caratom-phase-frontend` and follow it. Summary:
+
+## Before writing code
+
+- Read relevant `Vibe code principles/` files and the current phase spec.
+- Review Expo / Vercel RN / frontend-design skills that apply.
+- Inspect existing components and tokens; reuse before creating new ones.
+- Note mobile UX, accessibility, and performance risks.
+
+## During implementation
+
+- Follow product authority (see `caratom-design-authority` rule).
+- Follow native mobile UX and the relevant Expo and React Native skills.
+- Prefer reusable components; keep visual consistency; no unnecessary libraries.
+
+## After implementation (mandatory)
+
+Do **not** declare the phase complete after coding. Audit the **entire application**, not only new files, against vibe-code principles, mobile UX, visual quality, design-system consistency, accessibility, performance, and edge states (loading/empty/error/disabled/success/partial/long text/small+large screens/keyboard/network).
+
+Fix in-scope findings, then re-audit. A later phase that exposes a Phase 2 inconsistency should flag and fix it when appropriate so the app gets more consistent over time.
+
+Use the completion checklist in `caratom-phase-frontend`. Only then mark the phase complete.

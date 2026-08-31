@@ -1,0 +1,7 @@
+version: 1
+intent: visit_assigned
+channels:
+  push:
+    title: "New visit assigned"
+    body: "A {{service_name}} visit was assigned to you."
+deep_link_template: "caratom://visit/{{visit_id}}"

@@ -1,0 +1,53 @@
+{
+  "name": "caratom",
+  "private": true,
+  "packageManager": "pnpm@9.15.0",
+  "engines": {
+    "node": ">=20.18.0",
+    "pnpm": ">=9.15.0"
+  },
+  "scripts": {
+    "dev:customer": "pnpm --filter @caratom/customer start",
+    "dev:technician": "pnpm --filter @caratom/technician start",
+    "dev:admin-mobile": "pnpm --filter @caratom/admin-mobile start",
+    "dev:admin": "pnpm --filter @caratom/admin dev",
+    "dev:api": "cd backend && uv run uvicorn app.main:app --reload --port 8000",
+    "lint": "pnpm --filter \"./apps/**\" --filter \"./packages/**\" run lint",
+    "typecheck": "pnpm --filter \"./apps/**\" --filter \"./packages/**\" run typecheck",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test:backend": "cd backend && uv run pytest",
+    "test:customer": "pnpm --filter @caratom/customer test",
+    "test:admin-mobile": "pnpm --filter @caratom/admin-mobile test",
+    "test:technician": "pnpm --filter @caratom/technician test",
+    "test:analytics": "pnpm --filter @caratom/analytics test",
+    "test:e2e:admin": "playwright test e2e/admin",
+    "test:e2e:walkthrough": "playwright test --config e2e/walkthrough/playwright.config.ts",
+    "security": "node scripts/security/run.mjs",
+    "ci": "pnpm lint && pnpm typecheck && pnpm test:customer && pnpm test:admin-mobile && pnpm test:technician && pnpm test:analytics && pnpm test:backend"
+  },
+  "pnpm": {
+    "overrides": {
+      "react": "18.3.1",
+      "react-dom": "18.3.1",
+      "typescript": "5.7.3",
+      "prettier": "3.4.2"
+    },
+    "peerDependencyRules": {
+      "allowedVersions": {
+        "react": "18.3.1",
+        "react-dom": "18.3.1"
+      }
+    }
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.17.0",
+    "@playwright/test": "^1.51.0",
+    "eslint": "^9.17.0",
+    "eslint-plugin-react": "^7.37.2",
+    "eslint-plugin-react-hooks": "^5.1.0",
+    "prettier": "3.4.2",
+    "typescript": "5.7.3",
+    "typescript-eslint": "^8.18.2"
+  }
+}

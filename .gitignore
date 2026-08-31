@@ -1,0 +1,44 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+
+# Environment (never commit secrets; keep committed *.example files)
+.env
+.env.*
+!.env.example
+!.env.production.example
+!**/.env.example
+!**/.env.production.example
+
+# Security scanner binaries and generated reports
+scripts/security/bin/
+security/last-run.md
+
+# Build
+dist/
+.next/
+.expo/
+*.egg-info/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+*.db
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/

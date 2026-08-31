@@ -1,0 +1,1757 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CARATOM — Phone UI walkthrough</title>
+  <style>
+    :root {
+      --brand: #5db7e8;
+      --brand-2: #176b9e;
+      --brand-soft: #eaf6fc;
+      --accent-warn: #b56a22;
+      --bg: #f7fafc;
+      --card: #ffffff;
+      --border: #dce8ef;
+      --text: #142532;
+      --muted: #6a7b86;
+      --danger: #c62828;
+      --ok: #2e7d4f;
+      --page: #161916;
+      --shadow: 0 1px 2px rgba(26, 26, 26, 0.04);
+      --radius-sm: 10px;
+      --radius: 14px;
+      --radius-lg: 18px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "DM Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+      background: var(--page);
+      color: #e8ebe9;
+      min-height: 100vh;
+    }
+    .wrap { max-width: 980px; margin: 0 auto; padding: 24px 16px 48px; }
+    h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; }
+    .lede { color: #9aa39c; font-size: 14px; margin: 8px 0 18px; max-width: 56ch; line-height: 1.45; }
+
+    .faces { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+    .faces button, .chips button {
+      font: inherit; cursor: pointer; border: 0; border-radius: 999px;
+      padding: 8px 14px; background: #2a2f2c; color: #ddd;
+    }
+    .faces button.on { background: #e8efe9; color: #111; font-weight: 600; }
+    .chips { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 14px; }
+    .chips button { white-space: nowrap; font-size: 12px; padding: 6px 11px; }
+    .chips button.on { background: var(--brand-2); color: #fff; }
+
+    .folders { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
+    .folders button {
+      font: inherit; cursor: pointer; border: 1px solid #3a403c;
+      border-radius: 10px; padding: 8px 12px; background: #2a2f2c; color: #ddd;
+      font-size: 12px; font-weight: 600;
+    }
+    .folders button.on {
+      background: #e8efe9; color: #111; border-color: #c5cdc6;
+    }
+    .folder-hint {
+      font-size: 12px; color: #9aa39c; margin: -6px 0 10px; line-height: 1.4;
+    }
+    .flow-rail {
+      display: flex; align-items: center; gap: 0; margin-bottom: 14px;
+      padding: 8px 10px; background: #fff; border: 1px solid var(--border);
+      border-radius: var(--radius-sm); overflow-x: auto;
+    }
+    .flow-dot {
+      flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%;
+      background: #ebe8e3; color: var(--muted); font-size: 10px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .flow-dot.on { background: var(--brand); color: #fff; }
+    .flow-dot.done { background: var(--brand-soft); color: var(--brand); }
+    .flow-line {
+      flex: 1; min-width: 8px; height: 2px; background: #e0ddd8; margin: 0 2px;
+    }
+    .flow-line.done { background: var(--brand-soft); }
+    .addon-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+    .addon-tile {
+      background: #fff; border: 1.5px solid var(--border); border-radius: var(--radius);
+      padding: 12px; box-shadow: var(--shadow);
+    }
+    .addon-tile.sel { border-color: var(--brand); background: #f4faf7; }
+    .addon-tile b { font-size: 13px; display: block; }
+    .cart-remove { display: block; margin-top: 6px; font-size: 11px; color: var(--accent-warn); font-weight: 600; }
+    .li.revised { background: #f4faf7; }
+    .strike, .muted.strike { text-decoration: line-through; }
+
+    .stage {
+      display: grid;
+      grid-template-columns: 390px 1fr;
+      gap: 28px;
+      align-items: start;
+    }
+    @media (max-width: 820px) { .stage { grid-template-columns: 1fr; } }
+
+    .device {
+      width: 375px;
+      height: 780px;
+      background: #0a0a0a;
+      border-radius: 48px;
+      padding: 12px;
+      box-shadow: 0 0 0 3px #2c2c2c, 0 24px 60px rgba(0,0,0,.5);
+      position: relative;
+    }
+    .device::before {
+      content: "";
+      position: absolute;
+      top: 18px; left: 50%; transform: translateX(-50%);
+      width: 118px; height: 34px; background: #000; border-radius: 20px; z-index: 5;
+    }
+    .screen {
+      height: 100%;
+      background: var(--bg);
+      border-radius: 38px;
+      overflow: hidden;
+      position: relative;
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+    }
+    .sb {
+      height: 54px;
+      padding: 14px 22px 0;
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      font-weight: 600;
+      flex-shrink: 0;
+      color: var(--text);
+    }
+    .nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 16px 8px; min-height: 44px; flex-shrink: 0;
+    }
+    .nav h2 { font-size: 17px; font-weight: 700; letter-spacing: -0.02em; }
+    .nav .back, .nav .right {
+      font-size: 15px; color: var(--brand); background: none; border: 0; cursor: pointer;
+      min-width: 64px; font-weight: 600;
+    }
+    .nav .right { text-align: right; font-size: 14px; }
+    .scroll { flex: 1; overflow-y: auto; padding: 0 16px 16px; }
+    .scroll::-webkit-scrollbar { width: 0; }
+
+    .tabbar {
+      flex-shrink: 0;
+      height: 74px;
+      background: #fff;
+      border-top: 1px solid var(--border);
+      display: flex;
+      padding-bottom: 14px;
+      box-shadow: 0 -1px 0 rgba(26,26,26,0.02);
+    }
+    .tab {
+      flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 3px; font-size: 10px; color: var(--muted); background: none; border: 0; cursor: pointer;
+      font-weight: 500;
+    }
+    .tab.on { color: var(--brand); font-weight: 700; }
+    .tab svg { width: 22px; height: 22px; }
+
+    .home-ind {
+      position: absolute; bottom: 6px; left: 50%; transform: translateX(-50%);
+      width: 120px; height: 5px; background: #111; border-radius: 4px; z-index: 6;
+    }
+
+    .large { font-size: 26px; font-weight: 700; letter-spacing: -0.03em; padding: 4px 0 10px; }
+    .section-title {
+      font-size: 16px; font-weight: 700; letter-spacing: -0.01em;
+      margin: 18px 0 10px;
+    }
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      margin-bottom: 12px;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+    }
+    .card h3 { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+    .muted { color: var(--muted); font-size: 13px; line-height: 1.4; }
+    .row { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+    .chip {
+      display: inline-flex; align-items: center; background: var(--brand-soft); color: var(--brand);
+      font-size: 12px; font-weight: 600; padding: 5px 10px; border-radius: 999px;
+    }
+    .chip.warn { background: #fff3eb; color: var(--accent-warn); }
+    .chip.ok { background: #e6f4ec; color: var(--ok); }
+    .chip.neutral { background: #f0eeea; color: var(--muted); }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+    .cell {
+      background: var(--card);
+      border-radius: var(--radius-sm);
+      padding: 12px;
+      border: 1px solid var(--border);
+    }
+    .cell label { display: block; font-size: 11px; color: var(--muted); margin-bottom: 2px; font-weight: 500; }
+    .cell b { font-size: 14px; font-weight: 600; }
+    .pkg {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      margin-bottom: 10px;
+      border: 1.5px solid var(--border);
+      box-shadow: var(--shadow);
+    }
+    .pkg.sel {
+      border-color: var(--brand);
+      background: #f4faf7;
+    }
+    .pkg .price { color: var(--brand); font-weight: 700; font-size: 15px; margin-top: 6px; }
+    .btn {
+      width: 100%; border: 0; border-radius: 12px; padding: 14px;
+      background: var(--brand); color: #fff; font-weight: 650; font-size: 15px;
+      margin-top: 8px; cursor: pointer;
+    }
+    .btn.sec { background: var(--brand-soft); color: var(--brand); }
+    .btn.ghost { background: transparent; color: var(--danger); border: 1px solid #f0d0d0; }
+    .list {
+      background: var(--card);
+      border-radius: var(--radius);
+      overflow: hidden;
+      margin-bottom: 12px;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+    }
+    .li {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 15px; gap: 10px;
+    }
+    .li:last-child { border-bottom: 0; }
+    .li .chev { color: #c4c0ba; font-weight: 400; }
+    .seg {
+      display: flex; background: #ebe8e3; border-radius: 10px; padding: 3px; margin-bottom: 14px;
+    }
+    .seg span {
+      flex: 1; text-align: center; font-size: 12px; font-weight: 600; padding: 7px 4px;
+      border-radius: 8px; color: var(--muted);
+    }
+    .seg span.on { background: #fff; color: var(--text); box-shadow: var(--shadow); }
+    .map {
+      height: 160px; border-radius: var(--radius); margin-bottom: 12px;
+      background:
+        linear-gradient(90deg, #e4ebe6 1px, transparent 1px) 0 0 / 24px 24px,
+        linear-gradient(#e4ebe6 1px, transparent 1px) 0 0 / 24px 24px,
+        #eef3ef;
+      position: relative; overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .road {
+      position: absolute; height: 10px; background: #c5d0c8; top: 72px; left: 0; right: 0;
+    }
+    .pin {
+      position: absolute; width: 18px; height: 18px; background: var(--brand);
+      border-radius: 50% 50% 50% 0; transform: rotate(-45deg);
+      left: 58%; top: 48%;
+    }
+    .van {
+      position: absolute; left: 22%; top: 64px; width: 28px; height: 16px;
+      background: var(--accent-warn); border-radius: 3px;
+    }
+    .stars { letter-spacing: 4px; font-size: 28px; color: #d8d4ce; }
+    .stars .on { color: var(--accent-warn); }
+    .photo {
+      height: 88px; border-radius: var(--radius-sm); background: #e4ebe6;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; color: var(--brand); font-weight: 600;
+      border: 1px solid var(--border);
+    }
+    .banner {
+      background: var(--brand); color: #fff; border-radius: var(--radius);
+      padding: 14px 16px; margin-bottom: 12px; font-size: 14px; line-height: 1.4;
+    }
+    .explain h2 { font-size: 20px; margin-bottom: 8px; color: #fff; }
+    .explain p { color: #b7c0b9; font-size: 14px; line-height: 1.5; }
+    .search {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 15px;
+      color: var(--muted);
+      margin-bottom: 12px;
+      box-shadow: var(--shadow);
+    }
+    .search.focus {
+      border-color: var(--brand);
+      color: var(--text);
+    }
+    .dot {
+      width: 8px; height: 8px; border-radius: 50%; background: var(--ok);
+      display: inline-block; margin-right: 6px;
+    }
+
+    /* Home chrome */
+    .home-top {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      gap: 12px; margin-bottom: 14px;
+    }
+    .loc-block .loc-label { font-size: 11px; color: var(--muted); font-weight: 500; }
+    .loc-block .loc-name {
+      font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 4px;
+    }
+    .loc-block .loc-name::after { content: "▾"; font-size: 11px; color: var(--muted); }
+    .vehicle-pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: #fff; border: 1px solid var(--border);
+      border-radius: 999px; padding: 8px 12px;
+      font-size: 12px; font-weight: 600; box-shadow: var(--shadow);
+      max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .vehicle-pill .car-dot {
+      width: 8px; height: 8px; border-radius: 50%; background: var(--brand); flex-shrink: 0;
+    }
+
+    .mode-tabs {
+      display: flex; gap: 0; margin: 0 -16px 14px;
+      padding: 0 16px;
+      border-bottom: 1px solid var(--border);
+      overflow-x: auto;
+    }
+    .mode-tabs span {
+      flex: 0 0 auto; padding: 10px 12px 12px; font-size: 13px; font-weight: 600;
+      color: var(--muted); border-bottom: 2px solid transparent; margin-bottom: -1px;
+      white-space: nowrap;
+    }
+    .mode-tabs span.on {
+      color: var(--brand); border-bottom-color: var(--brand);
+    }
+    .mode-tabs span.on.sos-on {
+      color: var(--accent-warn); border-bottom-color: var(--accent-warn);
+    }
+
+    .flow-steps {
+      display: flex; gap: 6px; margin-bottom: 14px; align-items: center;
+    }
+    .flow-step {
+      flex: 1; background: #fff; border: 1px solid var(--border);
+      border-radius: var(--radius-sm); padding: 10px 8px; text-align: center;
+      font-size: 11px; font-weight: 600; line-height: 1.3;
+      box-shadow: var(--shadow);
+    }
+    .flow-step b { display: block; font-size: 12px; margin-bottom: 2px; }
+    .flow-arrow { color: var(--muted); font-size: 12px; flex-shrink: 0; }
+
+    .oneman-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;
+    }
+    .oneman-card {
+      background: #fff; border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 12px; box-shadow: var(--shadow);
+    }
+    .oneman-card .ph-icon { margin-bottom: 8px; }
+    .oneman-card b { font-size: 13px; display: block; margin-bottom: 2px; }
+    .oneman-card .price { color: var(--brand); font-weight: 700; font-size: 14px; margin-top: 6px; }
+
+    .policy-note {
+      background: var(--brand-soft); border-radius: 10px; padding: 10px 12px;
+      font-size: 12px; color: var(--brand); font-weight: 600; margin-bottom: 14px;
+      line-height: 1.4;
+    }
+    .sos-scroll { background: #faf9f7; }
+
+    .policy-note.warn {
+      background: #fff3eb; color: var(--accent-warn);
+    }
+
+    .included-list {
+      background: #fff; border: 1px solid var(--border); border-radius: var(--radius);
+      margin-bottom: 12px; overflow: hidden; box-shadow: var(--shadow);
+    }
+    .included-list .li { font-size: 14px; }
+
+    .sos-emergency-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+    .sos-tile {
+      background: #fff; border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 14px 12px; text-align: center; box-shadow: var(--shadow);
+    }
+    .sos-tile .ph-icon { margin: 0 auto 8px; }
+    .sos-tile b { font-size: 12px; font-weight: 600; display: block; }
+
+    .sos-screen .scroll { background: #faf9f7; }
+      display: flex; align-items: center; justify-content: space-between;
+      background: #fff; border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 12px 14px; margin-bottom: 4px; box-shadow: var(--shadow);
+    }
+    .sos-row .sos-btn {
+      background: #fff1e6; color: var(--accent-warn); font-weight: 700;
+      font-size: 12px; padding: 8px 12px; border-radius: 999px; border: 0;
+    }
+
+    /* Brand / model grids */
+    .logo-grid, .photo-grid {
+      display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 8px;
+    }
+    .logo-tile, .photo-tile {
+      background: #fff; border: 1.5px solid var(--border); border-radius: var(--radius);
+      padding: 12px 8px; text-align: center; box-shadow: var(--shadow);
+    }
+    .logo-tile.sel, .photo-tile.sel {
+      border-color: var(--brand); background: #f4faf7;
+    }
+    .logo-tile b, .photo-tile b {
+      display: block; font-size: 12px; font-weight: 600; line-height: 1.25;
+    }
+    .logo-tile .ph-logo, .photo-tile .ph-car { margin: 0 auto 8px; }
+    .check {
+      display: inline-flex; width: 18px; height: 18px; border-radius: 50%;
+      background: var(--brand); color: #fff; font-size: 11px; align-items: center;
+      justify-content: center; margin-top: 6px;
+    }
+
+    .tx-chips { display: flex; gap: 8px; margin-bottom: 12px; }
+    .tx-chips span {
+      flex: 1; text-align: center; padding: 10px; border-radius: 12px;
+      border: 1.5px solid var(--border); background: #fff; font-size: 13px; font-weight: 600;
+    }
+    .tx-chips span.on {
+      border-color: var(--brand); background: #f4faf7; color: var(--brand);
+    }
+
+    .spec-tile {
+      background: #fff; border: 1px solid var(--border); border-radius: var(--radius);
+      overflow: hidden; box-shadow: var(--shadow);
+    }
+    .spec-tile .spec-img {
+      height: 64px;
+      padding: 0;
+      border: 0;
+      border-radius: 0;
+      background: #eef3ef;
+    }
+    .spec-tile .spec-img .ph-icon {
+      width: 100%; height: 100%; border: 0; border-radius: 0;
+      background: transparent;
+    }
+    .spec-tile b {
+      display: block; padding: 8px 10px 10px; font-size: 12px; font-weight: 600; line-height: 1.3;
+    }
+
+    .trust-strip {
+      display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; margin-top: 4px;
+    }
+    .trust-strip .trust-card {
+      flex: 0 0 110px; background: #fff; border: 1px solid var(--border);
+      border-radius: var(--radius-sm); padding: 12px; text-align: center;
+      box-shadow: var(--shadow);
+    }
+    .trust-strip .trust-ico {
+      width: 48px; height: 48px; margin: 0 auto 8px; border-radius: 10px;
+      border: 0; background: transparent;
+    }
+    .trust-strip b { font-size: 11px; font-weight: 600; display: block; }
+
+    .brand-word {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.08em;
+      color: var(--brand); text-transform: uppercase; margin-bottom: 2px;
+    }
+
+    /* Placeholders — every image / video / logo slot */
+    .ph {
+      background: #e8ece9;
+      border: 1px dashed #c5cdc6;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--muted); overflow: hidden; position: relative; flex-shrink: 0;
+    }
+    .ph-label {
+      font-size: 9px; font-weight: 700; letter-spacing: 0.06em;
+      text-transform: uppercase; z-index: 1;
+    }
+    .ph-sm { width: 40px; height: 40px; border-radius: 8px; }
+    .ph-md { width: 56px; height: 56px; border-radius: 10px; }
+    .ph-lg { height: 72px; border-radius: var(--radius-sm); width: 100%; }
+    .ph-xl { height: 140px; border-radius: var(--radius-lg); width: 100%; }
+    .ph-wide { height: 100px; border-radius: var(--radius); width: 100%; }
+    .ph-avatar { width: 48px; height: 48px; border-radius: 50%; }
+    .ph-logo { width: 48px; height: 48px; border-radius: 12px; }
+    .ph-icon { width: 36px; height: 36px; border-radius: 10px; }
+    .ph-car { height: 56px; border-radius: 8px; width: 100%; }
+    .ph-car::before {
+      content: "";
+      position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%);
+      width: 22px; height: 10px; border-radius: 3px 3px 0 0;
+      background: var(--brand); opacity: 0.2;
+    }
+    .ph-car::after {
+      content: "";
+      position: absolute; left: 50%; bottom: 8px; transform: translateX(-50%);
+      width: 40px; height: 14px; border-radius: 4px 4px 2px 2px;
+      background: var(--brand); opacity: 0.28;
+    }
+    .ph-video { border-radius: var(--radius-lg); }
+    .ph-video::after {
+      content: "";
+      width: 36px; height: 36px; border-radius: 50%;
+      background: rgba(255,255,255,0.9); position: absolute;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.12);
+    }
+    .ph-map { border-radius: var(--radius); height: 160px; width: 100%; border: 1px solid var(--border); }
+    .ph-part { width: 44px; height: 44px; border-radius: 8px; }
+    .ph-pay { width: 40px; height: 40px; border-radius: 10px; }
+
+    .row-ph { display: flex; gap: 12px; align-items: center; }
+    .row-ph > div:last-child { flex: 1; min-width: 0; }
+    .pkg-row { display: flex; gap: 12px; align-items: flex-start; }
+    .pkg-row .ph-md { flex-shrink: 0; }
+
+    .hero {
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      margin-bottom: 16px;
+      height: 140px;
+      position: relative;
+      color: #fff;
+    }
+    .hero .ph-video {
+      position: absolute; inset: 0; border: 0; border-radius: 0;
+      background: linear-gradient(135deg, #dce6df, #b8ccc0);
+    }
+    .hero-content {
+      position: absolute; inset: 0;
+      padding: 18px 16px;
+      display: flex; flex-direction: column; justify-content: flex-end;
+      background: linear-gradient(0deg, rgba(14,61,44,0.75) 0%, rgba(14,61,44,0.15) 55%, transparent 100%);
+    }
+    .hero .hero-kicker { font-size: 11px; font-weight: 600; opacity: 0.9; margin-bottom: 4px; }
+    .hero .hero-title { font-size: 18px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.25; }
+    .hero-dots {
+      display: flex; gap: 5px; margin-top: 10px;
+    }
+    .hero-dots i {
+      width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.35);
+      display: block;
+    }
+    .hero-dots i.on { background: #fff; width: 16px; border-radius: 4px; }
+
+    .tab.sos-tab { color: var(--accent-warn); }
+    .tab.sos-tab.on { color: var(--accent-warn); font-weight: 700; }
+    .tab.sos-tab svg { stroke: var(--accent-warn); }
+
+    .map-ph-label {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; font-weight: 700; letter-spacing: 0.06em;
+      color: var(--muted); text-transform: uppercase;
+      background: rgba(238,243,239,0.85);
+      z-index: 2;
+    }
+    .map .road, .map .van, .map .pin { z-index: 3; }
+
+    .fuel-preview {
+      margin-bottom: 14px;
+      border-radius: var(--radius);
+      overflow: hidden;
+      border: 1px solid var(--border);
+      background: #fff;
+    }
+    .fuel-preview .ph-car { height: 100px; border: 0; border-radius: 0; }
+    .fuel-preview .fuel-preview-cap {
+      padding: 10px 14px; font-size: 13px; font-weight: 600;
+      border-top: 1px solid var(--border);
+    }
+
+    .login-brand-ph {
+      width: 72px; height: 72px; border-radius: 18px; margin-bottom: 16px;
+    }
+
+    .pay-row .li { gap: 12px; }
+    .waiting-ph { margin: 0 auto 16px; width: 80px; height: 80px; border-radius: 50%; }
+  </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <div class="wrap">
+    <h1>CARATOM phone UI</h1>
+    <p class="lede">Pick a flow folder, then step through the E2E booking path. Four service modes: General service · General + repair/replacement · One-man job · SOS.</p>
+    <div class="faces" id="faces"></div>
+    <div class="folders" id="folders"></div>
+    <p class="folder-hint" id="folder-hint"></p>
+    <div class="chips" id="chips"></div>
+    <div class="stage">
+      <div class="device"><div class="screen" id="screen"></div><div class="home-ind"></div></div>
+      <div class="explain" id="explain"></div>
+    </div>
+  </div>
+
+<script>
+const I = {
+  home: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1z"/></svg>`,
+  bag: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="8" width="14" height="12" rx="2"/><path d="M9 8V7a3 3 0 0 1 6 0v1"/></svg>`,
+  user: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3.5"/><path d="M5 19c1.5-3.5 4-5 7-5s5.5 1.5 7 5"/></svg>`,
+  list: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 7h12M8 12h12M8 17h12"/><circle cx="4" cy="7" r="1" fill="currentColor"/><circle cx="4" cy="12" r="1" fill="currentColor"/><circle cx="4" cy="17" r="1" fill="currentColor"/></svg>`,
+  map: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 4 6 2 5-2v16l-5 2-6-2-5 2V6z"/><path d="M9 4v16M15 6v16"/></svg>`,
+  inbox: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 13h4l2 3h4l2-3h4v7H4z"/><path d="M4 13 6.5 4h11L20 13"/></svg>`,
+  gear: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 3v2M12 19v2M5 12H3M21 12h-2M6.2 6.2l1.4 1.4M16.4 16.4l1.4 1.4M17.8 6.2l-1.4 1.4M7.6 16.4 6.2 17.8"/></svg>`,
+  sos: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>`,
+};
+
+const customerFolders = {
+  general: {
+    label: "General service",
+    hint: "E2E: home → vehicle → job card (no add-ons) → estimate → details → slot → booked. No advisor call.",
+    mode: "general",
+    screens: [
+      ["gs-01-home", "① Home"],
+      ["gs-02-make", "② Make"],
+      ["gs-03-model", "③ Model"],
+      ["gs-04-year", "④ Year"],
+      ["gs-05-fuel", "⑤ Fuel"],
+      ["gs-06-jobcard", "⑥ Job card"],
+      ["gs-07-estimate", "⑦ Estimate"],
+      ["gs-08-details", "⑧ Details"],
+      ["gs-09-slot", "⑨ Slot"],
+      ["gs-10-confirmed", "⑩ Booked"],
+    ],
+  },
+  repair: {
+    label: "General service + repair",
+    hint: "E2E: cart → vehicle → estimate → submit & callback → on call (live estimate) → accept or deny → slot & booked · deny returns to cart.",
+    mode: "repair",
+    screens: [
+      ["gpr-01-home", "① Home"],
+      ["gpr-02-repairs", "② Repairs cart"],
+      ["gpr-03-make", "③ Make"],
+      ["gpr-04-model", "④ Model"],
+      ["gpr-05-year", "⑤ Year"],
+      ["gpr-06-fuel", "⑥ Fuel"],
+      ["gpr-07-jobcard", "⑦ Job card"],
+      ["gpr-08-estimate", "⑧ Estimate"],
+      ["gpr-09-call", "⑨ On call"],
+      ["gpr-10-revised", "⑩ Accept / deny"],
+      ["gpr-11-slot", "⑪ Slot"],
+      ["gpr-12-confirmed", "⑫ Booked"],
+      ["gpr-02-deny-cart", "↩ Cart if deny"],
+    ],
+  },
+  oneman: {
+    label: "One-man job",
+    hint: "E2E: home → job detail → vehicle → details → slot → booked. Direct book, no advisor.",
+    mode: "oneman",
+    screens: [
+      ["om-01-home", "① Home"],
+      ["om-02-detail", "② Job detail"],
+      ["om-03-vehicle", "③ Vehicle"],
+      ["om-04-details", "④ Details"],
+      ["om-05-slot", "⑤ Slot"],
+      ["om-06-confirmed", "⑥ Booked"],
+    ],
+  },
+  sos: {
+    label: "SOS",
+    hint: "E2E: SOS home → pick help type → call active → help dispatched. Not a scheduled booking.",
+    mode: "sos",
+    screens: [
+      ["sos-01-home", "① SOS home"],
+      ["sos-02-pick", "② Pick help"],
+      ["sos-03-active", "③ Calling"],
+      ["sos-04-dispatched", "④ On the way"],
+    ],
+  },
+  account: {
+    label: "Account",
+    hint: "Login, orders, profile — outside the four service booking flows.",
+    mode: null,
+    screens: [
+      ["login", "Login"],
+      ["orders", "Orders"],
+      ["profile", "Profile"],
+      ["addresses", "Addresses"],
+    ],
+  },
+};
+
+const techFolders = {
+  fieldVisit: {
+    label: "Field visit",
+    hint: "E2E: assigned jobs → read-only job card → navigate → inspect or service → parts → QC. Technician never edits estimates — sales advisor on admin does.",
+    screens: [
+      ["today", "Today"],
+      ["detail", "Job card"],
+      ["map", "Navigate"],
+      ["inspect", "Inspection"],
+      ["service", "Service"],
+      ["parts", "Parts fitted"],
+      ["exception", "Exception"],
+      ["qc", "QC"],
+      ["me", "Profile & sync"],
+    ],
+  },
+};
+
+const adminFolders = {
+  advisorRevise: {
+    label: "Advisor · revise",
+    hint: "E2E: inbox → job → edit on call (add/remove lines) → send live to customer — accept or deny on their app.",
+    screens: [
+      ["adm-01-inbox", "① Inbox"],
+      ["adm-02-job", "② Job on call"],
+      ["adm-03-estimate", "③ Edit on call"],
+      ["adm-04-send", "④ Send to app"],
+    ],
+  },
+  ops: {
+    label: "Ops",
+    hint: "Board, dispatch, inventory, and other desk tools.",
+    screens: [
+      ["board", "Jobs"],
+      ["dispatch", "Dispatch"],
+      ["override", "Override"],
+      ["inventory", "Inventory"],
+      ["people", "People"],
+      ["money", "Payments"],
+      ["catalog", "Catalog"],
+      ["more", "More"],
+    ],
+  },
+};
+
+const apps = {
+  customer: {
+    label: "Customer",
+    tabs: [
+      { id: "home", label: "Home", icon: "home" },
+      { id: "orders", label: "Orders", icon: "bag" },
+      { id: "profile", label: "Profile", icon: "user" },
+    ],
+    folders: customerFolders,
+  },
+  technician: {
+    label: "Technician",
+    tabs: [
+      { id: "today", label: "Jobs", icon: "list" },
+      { id: "map", label: "Map", icon: "map" },
+      { id: "me", label: "Me", icon: "user" },
+    ],
+    folders: techFolders,
+  },
+  admin: {
+    label: "Admin",
+    tabs: [
+      { id: "inbox", label: "Inbox", icon: "inbox" },
+      { id: "board", label: "Jobs", icon: "list" },
+      { id: "people", label: "People", icon: "user" },
+      { id: "more", label: "More", icon: "gear" },
+    ],
+    folders: adminFolders,
+  },
+};
+
+const copy = {
+  customer: {
+    login: ["OTP login", "Phone + SMS code. Same account for all cars."],
+    orders: ["Order history", "Active and completed bookings."],
+    profile: ["Account", "Profile, addresses, help, settings."],
+    addresses: ["Saved addresses", "Home and office pins for doorstep service."],
+    "gs-01-home": ["① Home", "General service tab. Package + included items only. No add-ons on this path."],
+    "gs-02-make": ["② Make", "Optional vehicle context — brand logo grid."],
+    "gs-03-model": ["③ Model", "Photo grid of models for selected make."],
+    "gs-04-year": ["④ Year", "Manufacturing year for parts compatibility."],
+    "gs-05-fuel": ["⑤ Fuel", "Fuel + transmission. Car preview placeholder."],
+    "gs-06-jobcard": ["⑥ Job card", "Concerns + base service only. No repair add-ons."],
+    "gs-07-estimate": ["⑦ Estimate", "Server estimate · accept to continue. No advisor."],
+    "gs-08-details": ["⑧ Details", "Name, phone, address before slot."],
+    "gs-09-slot": ["⑨ Slot", "Pick doorstep visit time."],
+    "gs-10-confirmed": ["⑩ Booked", "Booking confirmed — reference and visit time."],
+    "gpr-01-home": ["① Home", "General service + repair tab. Same base package as General service."],
+    "gpr-02-repairs": ["② Repairs cart", "Pick repair/replacement add-ons. Same screen after Deny on ⑩ — remove items and go back through steps."],
+    "gpr-02-deny-cart": ["↩ Cart if deny", "Customer declined estimate on ⑩. Remove repairs from cart, then re-run vehicle → job card → estimate → callback."],
+    "gpr-03-make": ["③ Make", "Vehicle picker step 1."],
+    "gpr-04-model": ["④ Model", "Vehicle picker step 2."],
+    "gpr-05-year": ["⑤ Year", "Vehicle picker step 3."],
+    "gpr-06-fuel": ["⑥ Fuel", "Vehicle picker step 4."],
+    "gpr-07-jobcard": ["⑦ Job card", "Base service + selected repairs on the bill."],
+    "gpr-08-estimate": ["⑧ Estimate", "One action: submit estimate and request callback. Sales advisor calls — not the field technician."],
+    "gpr-09-call": ["⑨ On call", "Sales advisor calls. Lines may be added or removed; estimate sent to app during the call."],
+    "gpr-10-revised": ["⑩ Accept / deny", "Estimate pushed to app during the call — may be unchanged. Accept → slot · Deny → cart."],
+    "gpr-11-slot": ["⑪ Slot", "Pick visit after customer accepts on ⑩."],
+    "gpr-12-confirmed": ["⑫ Booked", "Repair booking confirmed."],
+    "om-01-home": ["① Home", "One-man job grid — fixed-price small jobs."],
+    "om-02-detail": ["② Job detail", "Selected job scope, price, duration."],
+    "om-03-vehicle": ["③ Vehicle", "Car context for the one-man visit."],
+    "om-04-details": ["④ Details", "Customer contact and address."],
+    "om-05-slot": ["⑤ Slot", "Short visit window."],
+    "om-06-confirmed": ["⑥ Booked", "One-man job confirmed."],
+    "sos-01-home": ["① SOS home", "Emergency map + quick help tiles."],
+    "sos-02-pick": ["② Pick help", "Choose roadside issue type."],
+    "sos-03-active": ["③ Calling", "Connected to ops / sharing location."],
+    "sos-04-dispatched": ["④ On the way", "Help dispatched — not a service booking."],
+  },
+  technician: {
+    today: ["Today queue", "Only your assigned visits for the day — type, time, distance."],
+    detail: ["Job card", "Read-only scope from the job card: vehicle, concerns, approved work, notes. No selling prices or estimate editing."],
+    map: ["Navigate", "Map to address, en-route, and on-site check-in."],
+    inspect: ["Inspection", "Findings, photos, recommendations — advisor prices and publishes."],
+    service: ["Service / repair", "Approved scope checklist — mark work done against job card lines."],
+    parts: ["Parts fitted", "Record SKUs used on this visit — traceability, not pricing."],
+    exception: ["Raise exception", "Scope diverged on site — flag advisor; never change selling price in the field."],
+    qc: ["QC & complete", "Checklist before leaving; failed QC → rework, not fake invoice state."],
+    me: ["Profile & sync", "On-duty state, offline queue, app sync, support."],
+  },
+  admin: {
+    inbox: ["Call queue", "Default home. Confirm bills. Admin can still do everything else."],
+    board: ["All jobs", "Omnipotent view. Nothing hidden."],
+    job: ["Full editor", "Rewrite lines, cars, notes. This is the company copy of the job card."],
+    estimate: ["Set selling price", "Admin publishes the estimate."],
+    dispatch: ["Assign vans", "Who goes where. Reassign anytime."],
+    override: ["God mode", "Force status, cash pay, waive, finish visit from desk. Reason + audit."],
+    inventory: ["Stock", "What is on the shelf and on each van. Low stock highlighted."],
+    used: ["Used on this job", "Exact SKUs fitted on JC-1042 — warranty and billing truth."],
+    custparts: ["Customer parts history", "Everything ever fitted on Rajesh’s cars, across jobs."],
+    people: ["Everyone", "Customers and technicians. Disable access."],
+    tech: ["Technician dossier", "Live status, today’s jobs, history, ratings, parts they fitted, last ping."],
+    book: ["Walk-in / WhatsApp", "Create a job on behalf of a customer."],
+    money: ["Ledger", "Razorpay + offline. Refunds."],
+    catalog: ["Prices and packages", "Change ₹2999 / ₹399 / 10% here; phones follow."],
+    more: ["The rest", "CMS, reports, settings, parts-advance %."],
+    "adm-01-inbox": ["① Inbox", "JC-1042 — customer submitted estimate and requested callback."],
+    "adm-02-job": ["② Job on call", "Sales advisor on call — technician only sees updated job card after customer accepts."],
+    "adm-03-estimate": ["③ Edit on call", "Advisor-only estimate editor. Add/remove lines; may stay the same."],
+    "adm-04-send": ["④ Send to app", "Push to customer app during call — ⑩ Accept or Deny on their phone."],
+  },
+};
+
+function sb() {
+  return `<div class="sb"><span>9:41</span><span>●●●● LTE</span></div>`;
+}
+function nav(title, back, right) {
+  return `<div class="nav"><span class="back">${back || ""}</span><h2>${title}</h2><span class="right">${right || ""}</span></div>`;
+}
+function tabs(face, active) {
+  const t = apps[face].tabs;
+  return `<div class="tabbar">${t.map(x => `<button class="tab ${x.id===active?"on":""}${x.sos?" sos-tab":""}">${I[x.icon]}<span>${x.label}</span></button>`).join("")}</div>`;
+}
+function shell(face, title, body, tab, {back="‹", right=""}={}) {
+  return `${sb()}${nav(title, back, right)}<div class="scroll">${body}</div>${tabs(face, tab)}`;
+}
+
+function ph(type, label) {
+  const lbl = label || type;
+  const cls = {
+    video: "ph ph-video ph-xl",
+    photo: "ph ph-lg",
+    logo: "ph ph-logo",
+    avatar: "ph ph-avatar",
+    icon: "ph ph-icon",
+    car: "ph ph-car",
+    map: "ph ph-map",
+    part: "ph ph-part",
+    pay: "ph ph-pay",
+    sm: "ph ph-sm",
+    md: "ph ph-md",
+    wide: "ph ph-wide",
+  }[type] || "ph ph-md";
+  return `<div class="${cls}" aria-hidden="true"><span class="ph-label">${lbl}</span></div>`;
+}
+function mapBlock() {
+  return `<div class="map"><div class="map-ph-label">MAP PLACEHOLDER</div><div class="road"></div><div class="van"></div><div class="pin"></div></div>`;
+}
+function liPh(type, label, title, sub, right) {
+  return `<div class="li row-ph"><div>${ph(type, label)}</div><div><b>${title}</b>${sub?`<div class="muted">${sub}</div>`:""}</div><span class="chev">${right||"›"}</span></div>`;
+}
+
+const MODE_TABS = [
+  { id: "general", label: "General service" },
+  { id: "repair", label: "Service + repair" },
+  { id: "oneman", label: "One-man job" },
+  { id: "sos", label: "SOS", sos: true },
+];
+
+function flowRail(screenId, folderOrKey) {
+  const folder = typeof folderOrKey === "string" ? customerFolders[folderOrKey] : folderOrKey;
+  if (!folder) return "";
+  const screens = folder.screens;
+  const idx = screens.findIndex(s => s[0] === screenId);
+  if (idx < 0) return "";
+  let html = '<div class="flow-rail">';
+  screens.forEach((s, i) => {
+    const cls = i === idx ? "on" : i < idx ? "done" : "";
+    html += `<span class="flow-dot ${cls}">${i + 1}</span>`;
+    if (i < screens.length - 1) html += `<span class="flow-line ${i < idx ? "done" : ""}"></span>`;
+  });
+  return html + "</div>";
+}
+
+function techFlowShell(folderKey, screenId, title, body, tab = "today", opts = {}) {
+  const folder = techFolders[folderKey];
+  const rail = flowRail(screenId, folder);
+  return `${sb()}${nav(title, opts.back || "‹", opts.right || "")}<div class="scroll">${rail}${body}</div>${tabs("technician", tab)}`;
+}
+
+function adminFlowShell(folderKey, screenId, title, body, tab = "inbox", opts = {}) {
+  const folder = adminFolders[folderKey];
+  const rail = flowRail(screenId, folder);
+  return `${sb()}${nav(title, opts.back || "‹", opts.right || "")}<div class="scroll">${rail}${body}</div>${tabs("admin", tab)}`;
+}
+
+function flowShell(folderKey, screenId, title, body, tab = "home", opts = {}) {
+  const rail = flowRail(screenId, folderKey);
+  const scrollCls = opts.scroll || "";
+  return `${sb()}${nav(title, opts.back || "‹", opts.right || "")}<div class="scroll${scrollCls ? " " + scrollCls : ""}">${rail}${body}</div>${tabs("customer", tab)}`;
+}
+
+function confirmedBlock(ref, when, note) {
+  return `
+    <div style="text-align:center;padding:16px 8px 8px">
+      <div class="check" style="width:48px;height:48px;font-size:22px;margin:0 auto">✓</div>
+      <div class="large" style="font-size:22px;margin-top:12px">Booking confirmed</div>
+      <p class="muted" style="margin-top:8px">${note}</p>
+    </div>
+    <div class="list">
+      <div class="li"><span>Reference</span><b>${ref}</b></div>
+      <div class="li"><span>When</span><b>${when}</b></div>
+      <div class="li"><span>Vehicle</span><span>Honda City 2019</span></div>
+      <div class="li"><span>Address</span><span>Koramangala</span></div>
+    </div>
+    <button class="btn">View booking</button>`;
+}
+
+const repairAddons = [
+  ["AC gas refill", "₹1,200", true],
+  ["Brake pads (pair)", "₹1,800", true],
+  ["AC condenser OEM", "₹4,200", false],
+  ["Bumper repaint", "₹2,500", false],
+  ["Cabin filter", "₹650", false],
+  ["Headlight assembly", "₹1,400", false],
+];
+
+function modeTabs(active) {
+  return `<div class="mode-tabs">${MODE_TABS.map(t =>
+    `<span class="${t.id===active?"on":""}${t.sos?" sos-on":""}">${t.label}</span>`
+  ).join("")}</div>`;
+}
+
+function homeChrome(active) {
+  return `
+    <div class="home-top">
+      <div class="loc-block">
+        <div class="loc-label">Service at</div>
+        <div class="loc-name">Koramangala</div>
+      </div>
+      <div class="vehicle-pill"><span class="car-dot"></span>Add your car</div>
+    </div>
+    ${modeTabs(active)}`;
+}
+
+function homeShell(active, body, extraScrollClass = "") {
+  return `${sb()}<div class="scroll${extraScrollClass ? " " + extraScrollClass : ""}">${homeChrome(active)}${body}</div>${tabs("customer","home")}`;
+}
+
+const onemanJobs = [
+  ["Bulb / headlight", "₹399", "30 min"],
+  ["Sensor / OBD code", "₹449", "45 min"],
+  ["Wiper blades", "₹349", "20 min"],
+  ["Battery check", "₹299", "30 min"],
+  ["Interior light", "₹399", "25 min"],
+  ["Panel / clip fit", "₹449", "40 min"],
+];
+
+const inspectRepairs = [
+  ["AC not cooling", "Inspect first"],
+  ["Brake noise", "Inspect first"],
+  ["Engine warning", "Inspect first"],
+  ["Suspension knock", "Inspect first"],
+];
+
+const includedItems = [
+  "Engine oil & filter",
+  "Air filter check",
+  "Fluid top-up",
+  "30-point health report",
+];
+
+const brands = [
+  ["MS", "Maruti"],
+  ["HY", "Hyundai"],
+  ["HO", "Honda"],
+  ["TA", "Tata"],
+  ["MA", "Mahindra"],
+  ["TO", "Toyota"],
+  ["KI", "Kia"],
+  ["SK", "Skoda"],
+  ["VW", "Volkswagen"],
+];
+
+const models = [
+  ["Amaze", "Compact"],
+  ["City", "Sedan"],
+  ["Jazz", "Hatch"],
+  ["WR-V", "Crossover"],
+  ["Elevate", "SUV"],
+  ["Civic", "Sedan"],
+];
+
+const specialties = [
+  ["Lighting", "Service icon"],
+  ["Sensors", "Service icon"],
+  ["Car AC", "Service icon"],
+  ["Brakes", "Service icon"],
+  ["Glass", "Service icon"],
+  ["Body parts", "Service icon"],
+];
+
+const trustItems = [
+  ["Van photo", "Van at your door"],
+  ["Tech photo", "Trained techs"],
+  ["Parts photo", "Genuine parts"],
+  ["Warranty", "Warranty"],
+];
+
+const payMethods = [
+  ["UPI", "UPI icon"],
+  ["Cards", "Card icon"],
+  ["Netbanking", "Bank icon"],
+];
+
+const ui = {
+  customer: {
+    login: () => `${sb()}<div class="scroll" style="padding-top:32px">
+      ${ph("logo", "LOGO").replace("ph-logo", "ph-logo login-brand-ph")}
+      <div class="large" style="padding-top:8px">Doorstep car care</div>
+      <p class="muted" style="margin-bottom:22px">Genuine parts · trained technicians · warranty</p>
+      <div class="cell" style="margin-bottom:10px"><label>Phone</label><b>+91 98765 43210</b></div>
+      <button class="btn">Send OTP</button>
+      <p class="muted" style="margin:16px 0 10px;text-align:center">Enter the 6-digit code</p>
+      <div class="grid3">${["4","8","1","•","•","•"].map(n=>`<div class="cell" style="text-align:center;font-size:20px;font-weight:700;padding:14px 8px">${n}</div>`).join("")}</div>
+      <button class="btn">Verify & continue</button>
+    </div>${tabs("customer","home")}`,
+
+    
+    "gs-01-home": () => homeShell("general", `
+      <div class="hero">
+        ${ph("video", "VIDEO")}
+        <div class="hero-content">
+          <div class="hero-kicker">General service · doorstep</div>
+          <div class="hero-title">Full service + health report</div>
+          <div class="hero-dots"><i class="on"></i><i></i><i></i></div>
+        </div>
+      </div>
+      <div class="search">Search make, model or plate (optional)</div>
+      <div class="policy-note">Estimate before slot · no add-ons · no advisor call</div>
+      <p class="section-title">General servicing + health report</p>
+      <div class="pkg sel">
+        <div class="pkg-row">${ph("icon", "PKG")}<div>
+          <b>General servicing + health report</b>
+          <div class="muted">Usually 1 visit</div>
+          <div class="price">From ₹2,999</div>
+        </div></div>
+      </div>
+      <button class="btn">Start job card</button>
+      <p class="section-title">Included in service</p>
+      <div class="included-list">
+        ${includedItems.map(i=>`<div class="li"><span>${i}</span><span class="chip ok">Included</span></div>`).join("")}
+      </div>
+      <p class="section-title">Why CARATOM</p>
+      <div class="trust-strip">${trustItems.map(([l,t])=>`<div class="trust-card">${ph("photo", l)}<b>${t}</b></div>`).join("")}</div>
+    `),
+
+    "gs-02-make": () => flowShell("general", "gs-02-make", "Select make", `
+      <div class="seg"><span class="on">Make</span><span>Model</span><span>Year</span><span>Fuel</span></div>
+      <div class="search">Search company</div>
+      <div class="logo-grid">${brands.map(([mark,name],i)=>`<div class="logo-tile ${i===2?"sel":""}">${ph("logo", mark)}<b>${name}</b>${i===2?'<span class="check">✓</span>':''}</div>`).join("")}</div>
+      <button class="btn">Continue to model</button>
+    `),
+
+    "gs-03-model": () => flowShell("general", "gs-03-model", "Select model", `
+      <div class="seg"><span>Make</span><span class="on">Model</span><span>Year</span><span>Fuel</span></div>
+      <p class="muted" style="margin-bottom:10px">Honda</p>
+      <div class="photo-grid">${models.map(([n,t])=>`<div class="photo-tile ${n==="City"?"sel":""}">${ph("car", "CAR")}<b>${n}</b><div class="muted" style="font-size:11px">${t}</div>${n==="City"?'<span class="check">✓</span>':''}</div>`).join("")}</div>
+      <button class="btn">Continue to year</button>
+    `),
+
+    "gs-04-year": () => flowShell("general", "gs-04-year", "Select year", `
+      <div class="seg"><span>Make</span><span>Model</span><span class="on">Year</span><span>Fuel</span></div>
+      <div class="grid3">${["2016","2017","2018","2019","2020","2021","2022","2023","2024"].map(y=>`<div class="cell" style="text-align:center;padding:14px 8px;${y==="2019"?"border:1.5px solid var(--brand);background:#f4faf7":""}"><b>${y}</b>${y==="2019"?'<div class="check" style="margin:6px auto 0">✓</div>':''}</div>`).join("")}</div>
+      <button class="btn">Continue to fuel</button>
+    `),
+
+    "gs-05-fuel": () => flowShell("general", "gs-05-fuel", "Fuel & transmission", `
+      <div class="seg"><span>Make</span><span>Model</span><span>Year</span><span class="on">Fuel</span></div>
+      <div class="fuel-preview">${ph("car", "CAR PHOTO")}<div class="fuel-preview-cap">Honda City · 2019</div></div>
+      <div class="tx-chips"><span class="on">Manual</span><span>Automatic</span></div>
+      <div class="pkg sel"><div class="row"><b>Petrol</b><span class="check">✓</span></div></div>
+      <button class="btn">Use this car</button>
+    `),
+
+    "gs-06-jobcard": () => flowShell("general", "gs-06-jobcard", "Job card", `
+      <div class="card row-ph">${ph("car", "CAR")}<div><div class="muted">Vehicle</div><b>Honda City 2019 · Petrol</b></div></div>
+      <div class="card"><div class="muted">What’s wrong with the car?</div><div style="margin-top:4px">Want full service and a health report. AC feels weak on idle.</div></div>
+      <div class="list">
+        <div class="li row-ph">${ph("icon", "SVC")}<div><span>General servicing + health report</span></div><b>₹2,999</b></div>
+      </div>
+      <p class="muted">No repair add-ons on this flow.</p>
+      <button class="btn">Review estimate</button>
+    `),
+
+    "gs-07-estimate": () => flowShell("general", "gs-07-estimate", "Your estimate", `
+      <div class="policy-note">Indicative total · accept to continue booking</div>
+      <div class="list">
+        <div class="li"><span>General servicing + health report</span><b>₹2,999</b></div>
+        <div class="li"><span>Included fluids check</span><span class="chip ok">Included</span></div>
+        <div class="li"><b>Total</b><b>₹2,999</b></div>
+      </div>
+      <button class="btn">Accept estimate</button>
+      <button class="btn sec">Change job card</button>
+    `),
+
+    "gs-08-details": () => flowShell("general", "gs-08-details", "Your details", `
+      <div class="cell" style="margin-bottom:10px"><label>Name</label><b>Rajesh Kumar</b></div>
+      <div class="cell" style="margin-bottom:10px"><label>Phone</label><b>+91 98765 43210</b></div>
+      <div class="cell" style="margin-bottom:12px"><label>Address</label><b>12, 5th Cross, Koramangala 5th Block</b></div>
+      ${ph("map", "ADDRESS MAP")}
+      <button class="btn">Continue to slot</button>
+    `),
+
+    "gs-09-slot": () => flowShell("general", "gs-09-slot", "Pick a slot", `
+      <p class="muted" style="margin-bottom:12px">General service · ~2 hr visit</p>
+      <div class="seg"><span>Tue 18</span><span class="on">Wed 19</span><span>Thu 20</span></div>
+      <div class="grid2">
+        <div class="cell" style="text-align:center;padding:14px">9:00 – 11:00</div>
+        <div class="cell" style="text-align:center;padding:14px;border:1.5px solid var(--brand);background:#f4faf7"><b>11:00 – 13:00</b></div>
+        <div class="cell" style="text-align:center;padding:14px">14:00 – 16:00</div>
+        <div class="cell" style="text-align:center;padding:14px">16:00 – 18:00</div>
+      </div>
+      <button class="btn">Confirm 11:00 – 13:00</button>
+    `),
+
+    "gs-10-confirmed": () => flowShell("general", "gs-10-confirmed", "Confirmed", confirmedBlock("JC-1050", "Wed 19 · 11:00 – 13:00", "We’ll assign a van before your visit.")),
+
+    "gpr-01-home": () => homeShell("repair", `
+      <div class="hero">
+        ${ph("video", "VIDEO")}
+        <div class="hero-content">
+          <div class="hero-kicker">General + repair/replacement</div>
+          <div class="hero-title">Same service.<br/>Pick what to fix.</div>
+          <div class="hero-dots"><i class="on"></i><i></i></div>
+        </div>
+      </div>
+      <div class="policy-note warn">Add repairs → callback → accept on app before slot</div>
+      <p class="section-title">General servicing + health report</p>
+      <div class="pkg sel">
+        <div class="pkg-row">${ph("icon", "PKG")}<div>
+          <b>General servicing + health report</b>
+          <div class="muted">Base package · same as General service tab</div>
+          <div class="price">From ₹2,999</div>
+        </div></div>
+      </div>
+      <p class="section-title">Included in service</p>
+      <div class="included-list">${includedItems.map(i=>`<div class="li"><span>${i}</span><span class="chip ok">Included</span></div>`).join("")}</div>
+      <button class="btn">Select repairs / replacements</button>
+      <p class="section-title">Why CARATOM</p>
+      <div class="trust-strip">${trustItems.slice(0,3).map(([l,t])=>`<div class="trust-card">${ph("photo", l)}<b>${t}</b></div>`).join("")}</div>
+    `),
+
+    "gpr-02-repairs": () => flowShell("repair", "gpr-02-repairs", "Repairs cart", `
+      <p class="muted" style="margin-bottom:12px">Add repairs to your cart. You’ll review the full estimate before requesting a callback.</p>
+      <div class="addon-grid">
+        ${repairAddons.map(([n,p,s])=>`<div class="addon-tile ${s?"sel":""}">${ph("part", "PART")}<b>${n}</b><div class="price">${p}</div>${s?'<span class="check">✓</span>':''}</div>`).join("")}
+      </div>
+      <div class="card"><div class="muted">In cart</div><b>AC gas refill · Brake pads (pair)</b></div>
+      <button class="btn">Continue with 2 repairs</button>
+    `),
+
+    "gpr-02-deny-cart": () => flowShell("repair", "gpr-02-deny-cart", "Repairs cart", `
+      <div class="banner">Estimate declined on ⑩ — adjust your cart and go back through the steps.</div>
+      <p class="muted" style="margin-bottom:12px">Remove items you don’t want, then continue from vehicle or job card again.</p>
+      <div class="addon-grid">
+        ${repairAddons.map(([n,p,s])=>`<div class="addon-tile ${s?"sel":""}">${ph("part", "PART")}<b>${n}</b><div class="price">${p}</div>${s?`<span class="cart-remove">Remove</span>`:'<span class="muted" style="font-size:11px">Tap to add</span>'}</div>`).join("")}
+      </div>
+      <div class="card"><div class="muted">In cart</div><b>AC gas refill · Brake pads (pair)</b><div class="muted" style="margin-top:4px">Tap Remove to drop a repair</div></div>
+      <button class="btn sec">Back to ⑦ Job card</button>
+      <button class="btn">Continue with updated cart</button>
+    `),
+
+    "gpr-03-make": () => flowShell("repair", "gpr-03-make", "Select make", `
+      <div class="seg"><span class="on">Make</span><span>Model</span><span>Year</span><span>Fuel</span></div>
+      <div class="logo-grid">${brands.map(([mark,name],i)=>`<div class="logo-tile ${i===2?"sel":""}">${ph("logo", mark)}<b>${name}</b></div>`).join("")}</div>
+      <button class="btn">Continue</button>
+    `),
+
+    "gpr-04-model": () => flowShell("repair", "gpr-04-model", "Select model", `
+      <div class="seg"><span>Make</span><span class="on">Model</span><span>Year</span><span>Fuel</span></div>
+      <div class="photo-grid">${models.map(([n,t])=>`<div class="photo-tile ${n==="City"?"sel":""}">${ph("car", "CAR")}<b>${n}</b><div class="muted" style="font-size:11px">${t}</div></div>`).join("")}</div>
+      <button class="btn">Continue</button>
+    `),
+
+    "gpr-05-year": () => flowShell("repair", "gpr-05-year", "Select year", `
+      <div class="seg"><span>Make</span><span>Model</span><span class="on">Year</span><span>Fuel</span></div>
+      <div class="grid3">${["2017","2018","2019","2020","2021"].map(y=>`<div class="cell" style="text-align:center;padding:14px;${y==="2019"?"border:1.5px solid var(--brand);background:#f4faf7":""}"><b>${y}</b></div>`).join("")}</div>
+      <button class="btn">Continue</button>
+    `),
+
+    "gpr-06-fuel": () => flowShell("repair", "gpr-06-fuel", "Fuel & transmission", `
+      <div class="fuel-preview">${ph("car", "CAR PHOTO")}<div class="fuel-preview-cap">Honda City · 2019 · Petrol</div></div>
+      <button class="btn">Use this car</button>
+    `),
+
+    "gpr-07-jobcard": () => flowShell("repair", "gpr-07-jobcard", "Job card", `
+      <div class="card row-ph">${ph("car", "CAR")}<div><b>Honda City 2019 · Petrol</b></div></div>
+      <div class="card"><div class="muted">Concerns</div>AC weak · brakes feel soft.</div>
+      <div class="list">
+        <div class="li"><span>General servicing + health report</span><b>₹2,999</b></div>
+        <div class="li row-ph">${ph("part", "PART")}<div><span>AC gas refill</span></div><b>₹1,200</b></div>
+        <div class="li row-ph">${ph("part", "PART")}<div><span>Brake pads (pair)</span></div><b>₹1,800</b></div>
+      </div>
+      <button class="btn">Review estimate</button>
+    `),
+
+    "gpr-08-estimate": () => flowShell("repair", "gpr-08-estimate", "Your estimate", `
+      <p class="muted" style="margin-bottom:10px">Review your cart total. A sales advisor will call to confirm scope on the app.</p>
+      <div class="list">
+        <div class="li"><span>General service + health report</span><b>₹2,999</b></div>
+        <div class="li"><span>AC gas refill</span><b>₹1,200</b></div>
+        <div class="li"><span>Brake pads (pair)</span><b>₹1,800</b></div>
+        <div class="li"><b>Indicative total</b><b>₹5,999</b></div>
+      </div>
+      <button class="btn">Submit estimate & request callback</button>
+    `),
+
+    "gpr-09-call": () => flowShell("repair", "gpr-09-call", "On call", `
+      <div style="text-align:center;padding:12px 8px">
+        ${ph("icon", "CALL").replace("ph-icon", "ph-icon waiting-ph")}
+        <span class="chip warn" style="margin-top:12px">Callback in progress</span>
+        <div class="large" style="font-size:22px;margin-top:14px">Priya is calling you</div>
+        <p class="muted" style="margin-top:8px">Your sales advisor may add or remove repairs on the call. The estimate lands in your app while you’re still talking — it might stay the same.</p>
+      </div>
+      <div class="list">
+        <div class="li"><span>Submitted total</span><b>₹5,999</b></div>
+        <div class="li"><span>Status</span><span class="chip warn">On call</span></div>
+      </div>
+      <p class="muted" style="margin-top:10px;text-align:center">Watch for ⑩ on your app — Accept or Deny when the estimate arrives.</p>
+    `, "orders"),
+
+    "gpr-10-revised": () => flowShell("repair", "gpr-10-revised", "Estimate on app", `
+      <span class="chip ok" style="margin-bottom:10px">Sent during your call</span>
+      <p class="muted" style="margin-bottom:10px">Priya updated this during your call with the advisor. Accept or Deny on the app — field technician does not change your bill.</p>
+      <div class="list">
+        <div class="li"><span>General service + health report</span><b>₹2,999</b></div>
+        <div class="li"><span>AC gas refill</span><b>₹1,200</b></div>
+        <div class="li revised"><div><span>Brake pads (pair)</span><div class="muted strike">Was ₹1,800</div></div><b>₹2,200</b></div>
+        <div class="li revised"><div><span>Brake fluid flush</span><span class="chip">Added on call</span></div><b>₹450</b></div>
+        <div class="li"><b>Total on app</b><b>₹6,849</b></div>
+      </div>
+      <button class="btn">Accept</button>
+      <button class="btn sec">Deny</button>
+      <p class="muted" style="margin-top:8px">Accept → ⑪ Slot · Deny → repairs cart to remove items and go back.</p>
+    `),
+
+    "gpr-11-slot": () => flowShell("repair", "gpr-11-slot", "Pick a slot", `
+      <p class="muted" style="margin-bottom:12px">Service + repairs · Wed preferred</p>
+      <div class="seg"><span>Tue 18</span><span class="on">Wed 19</span><span>Thu 20</span></div>
+      <div class="grid2">
+        <div class="cell" style="text-align:center;padding:14px;border:1.5px solid var(--brand);background:#f4faf7"><b>11:00 – 13:00</b></div>
+        <div class="cell" style="text-align:center;padding:14px">14:00 – 16:00</div>
+      </div>
+      <button class="btn">Confirm slot & book</button>
+    `),
+
+    "gpr-12-confirmed": () => flowShell("repair", "gpr-12-confirmed", "Confirmed", confirmedBlock("JC-1042", "Wed 19 · 11:00 – 13:00", "Service + repairs booked after you accepted on the call.")),
+
+    "om-01-home": () => homeShell("oneman", `
+      <div class="hero">
+        ${ph("video", "VIDEO")}
+        <div class="hero-content">
+          <div class="hero-kicker">One-man job</div>
+          <div class="hero-title">Small fixes · fixed price</div>
+          <div class="hero-dots"><i class="on"></i><i></i><i></i></div>
+        </div>
+      </div>
+      <div class="policy-note">Direct book · no advisor for listed jobs</div>
+      <div class="oneman-grid">${onemanJobs.map(([n,p,d])=>`<div class="oneman-card">${ph("icon", "JOB")}<b>${n}</b><div class="muted">${d}</div><div class="price">${p}</div></div>`).join("")}</div>
+    `),
+
+    "om-02-detail": () => flowShell("oneman", "om-02-detail", "Bulb / headlight", `
+      <div class="pkg sel">
+        <div class="pkg-row">${ph("icon", "JOB")}<div>
+          <b>Bulb / headlight replacement</b>
+          <div class="muted">~30 min · 1 technician</div>
+          <div class="price">₹399</div>
+        </div></div>
+      </div>
+      <div class="card">${ph("photo", "JOB PHOTO")}<div class="muted" style="margin-top:8px">Fit H4 / LED bulb at your doorstep. Parts priced if non-standard.</div></div>
+      <button class="btn">Book this job</button>
+    `),
+
+    "om-03-vehicle": () => flowShell("oneman", "om-03-vehicle", "Your vehicle", `
+      <p class="muted" style="margin-bottom:10px">Bulb / headlight · Honda City 2019</p>
+      <div class="fuel-preview">${ph("car", "CAR PHOTO")}<div class="fuel-preview-cap">Honda City 2019 · Petrol · Manual</div></div>
+      <button class="btn sec">Change vehicle</button>
+      <button class="btn">Continue</button>
+    `),
+
+    "om-04-details": () => flowShell("oneman", "om-04-details", "Your details", `
+      <div class="cell" style="margin-bottom:10px"><label>Name</label><b>Rajesh Kumar</b></div>
+      <div class="cell" style="margin-bottom:10px"><label>Phone</label><b>+91 98765 43210</b></div>
+      <div class="cell" style="margin-bottom:12px"><label>Address</label><b>Koramangala 5th Block</b></div>
+      <button class="btn">Pick a slot</button>
+    `),
+
+    "om-05-slot": () => flowShell("oneman", "om-05-slot", "Pick a slot", `
+      <p class="muted" style="margin-bottom:12px">Short visit · ~30 min</p>
+      <div class="grid2">
+        <div class="cell" style="text-align:center;padding:14px">14:00 – 14:30</div>
+        <div class="cell" style="text-align:center;padding:14px;border:1.5px solid var(--brand);background:#f4faf7"><b>16:00 – 16:30</b></div>
+      </div>
+      <button class="btn">Confirm 16:00</button>
+    `),
+
+    "om-06-confirmed": () => flowShell("oneman", "om-06-confirmed", "Confirmed", confirmedBlock("JC-0991", "Wed 19 · 16:00", "One-man job confirmed. Tech arrives with basic parts.")),
+
+    "sos-01-home": () => homeShell("sos", `
+      <span class="chip warn" style="margin-bottom:10px">Emergency · not scheduled service</span>
+      ${mapBlock()}
+      <div class="card row-ph" style="margin-top:12px">${ph("icon", "GPS")}<div><b>Your location</b><div class="muted">Koramangala · live GPS</div></div><span class="chip warn">Live</span></div>
+      <div class="sos-emergency-grid">
+        <div class="sos-tile">${ph("icon", "CALL")}<b>Call ops</b></div>
+        <div class="sos-tile">${ph("icon", "FLAT")}<b>Flat tyre</b></div>
+        <div class="sos-tile">${ph("icon", "BAT")}<b>Dead battery</b></div>
+        <div class="sos-tile">${ph("icon", "TOW")}<b>Tow</b></div>
+      </div>
+      <button class="btn" style="background:var(--accent-warn)">Get help now</button>
+    `, "home", { scroll: "sos-scroll" }),
+
+    "sos-02-pick": () => flowShell("sos", "sos-02-pick", "What do you need?", `
+      <p class="muted" style="margin-bottom:12px">Pick the closest match. Ops will confirm on call.</p>
+      <div class="list">
+        <div class="li row-ph">${ph("icon", "FLAT")}<div><b>Flat tyre</b><div class="muted">Can’t drive safely</div></div><span class="chev">›</span></div>
+        <div class="li row-ph">${ph("icon", "BAT")}<div><b>Dead battery</b><div class="muted">Car won’t start</div></div><span class="chev">›</span></div>
+        <div class="li row-ph">${ph("icon", "TOW")}<div><b>Need a tow</b><div class="muted">Vehicle won’t move</div></div><span class="chev">›</span></div>
+        <div class="li row-ph">${ph("icon", "FUEL")}<div><b>Out of fuel</b><div class="muted">Fuel delivery assist</div></div><span class="chev">›</span></div>
+      </div>
+      <button class="btn" style="background:var(--accent-warn)">Call with this issue</button>
+    `, "home", { scroll: "sos-scroll" }),
+
+    "sos-03-active": () => flowShell("sos", "sos-03-active", "Connecting…", `
+      <div style="text-align:center;padding:20px 8px">
+        ${ph("icon", "CALL").replace("ph-icon", "ph-icon waiting-ph")}
+        <div class="large" style="font-size:20px;margin-top:14px">Calling CARATOM ops</div>
+        <p class="muted" style="margin-top:8px">Sharing location · Flat tyre · Koramangala</p>
+      </div>
+      ${mapBlock()}
+      <button class="btn sec">Cancel call</button>
+    `, "home", { scroll: "sos-scroll" }),
+
+    "sos-04-dispatched": () => flowShell("sos", "sos-04-dispatched", "Help on the way", `
+      <span class="chip ok" style="margin-bottom:10px">Help dispatched</span>
+      ${mapBlock()}
+      <div class="card row-ph">${ph("avatar", "OPS")}<div><b>Roadside partner</b><div class="muted">ETA ~25 min · tyre assist</div></div></div>
+      <div class="list">
+        <div class="li"><span>Issue</span><span>Flat tyre</span></div>
+        <div class="li"><span>Location</span><span>5th Cross</span></div>
+      </div>
+      <button class="btn sec">Call ops again</button>
+    `, "home", { scroll: "sos-scroll" }),
+
+    orders: () => shell("customer","Orders", `
+      <div class="card row-ph">${ph("car", "CAR")}<div><div class="row"><b>JC-1042</b><span class="chip warn">Scheduled</span></div><div class="muted" style="margin-top:4px">General + repairs · Wed 11:00</div></div></div>
+      <div class="card row-ph">${ph("car", "CAR")}<div><div class="row"><b>JC-0991</b><span class="chip ok">Completed</span></div><div class="muted" style="margin-top:4px">One-man · lighting</div></div></div>
+    `, "orders", {back:"", right:""}),
+
+    profile: () => shell("customer","Profile", `
+      <div class="card row-ph">${ph("avatar", "USER")}<div><b>Rajesh Kumar</b><div class="muted" style="margin-top:4px">+91 98765 43210</div></div></div>
+      <div class="list"><div class="li"><span>Your orders</span><span class="chev">›</span></div></div>
+      <button class="btn ghost">Log out</button>
+    `, "profile", {back:"", right:""}),
+
+    addresses: () => shell("customer","Addresses", `
+      <div class="card row-ph">${ph("map", "PIN")}<div><b>Home</b><div class="muted" style="margin-top:4px">Koramangala</div></div></div>
+      <button class="btn sec">Add address</button>
+    `, "profile"),
+
+  },
+
+  technician: {
+    today: () => shell("technician","Today", `
+      <p class="muted" style="margin-bottom:12px">Wednesday 19 Aug · 3 jobs</p>
+      <div class="card" style="border-left:3px solid var(--brand)">
+        <div class="row"><b>11:00 · Inspection</b><span class="chip">4.2 km</span></div>
+        <div style="margin-top:6px">JC-1042 · Honda City</div>
+        <div class="muted">Koramangala 5th Block</div>
+      </div>
+      <div class="card">
+        <div class="row"><b>14:00 · One-man</b><span class="chip">7 km</span></div>
+        <div class="muted" style="margin-top:6px">JC-0991 · Creta · lighting</div>
+      </div>
+      <div class="card">
+        <div class="row"><b>16:30 · Repair visit 2</b><span class="chip">5 km</span></div>
+        <div class="muted" style="margin-top:6px">JC-1008 · Swift</div>
+      </div>
+    `, "today", {back:"", right:"On duty"}),
+
+    detail: () => shell("technician","JC-1042", `
+      <div class="row" style="margin-bottom:10px"><span class="chip">Service + repair</span><span class="chip ok">Approved</span></div>
+      <div class="card row-ph">${ph("car", "CAR")}<div>
+        <b>Honda City 2019 · Petrol</b>
+        <div class="muted" style="margin-top:4px">KA-01-XX-4421 · Wed 11:00 – 13:00</div>
+      </div></div>
+      <div class="card"><div class="muted">Customer concerns</div><div style="margin-top:4px">AC weak on idle · brakes feel soft</div></div>
+      <p class="section-title" style="margin-top:12px">Approved work (from job card)</p>
+      <div class="list">
+        <div class="li"><span>General servicing + health report</span><span class="chip ok">In scope</span></div>
+        <div class="li row-ph">${ph("part", "PART")}<div><span>AC gas refill</span></div><span class="chip ok">Approved</span></div>
+        <div class="li row-ph">${ph("part", "PART")}<div><span>Brake pads (pair)</span></div><span class="chip ok">Approved</span></div>
+        <div class="li row-ph">${ph("part", "PART")}<div><span>Brake fluid flush</span><div class="muted">Added on advisor call</div></div><span class="chip ok">Approved</span></div>
+      </div>
+      <p class="muted" style="margin:10px 0">Selling prices hidden · estimate edits are advisor-only on admin</p>
+      <div class="card"><div class="muted">Advisor note</div><div style="margin-top:4px">Customer accepted on call · pads + fluid confirmed</div></div>
+      <div class="list">
+        <div class="li"><span>Customer</span><span>Rajesh · Call</span></div>
+        <div class="li"><span>Address</span><span>5th Cross, Koramangala</span></div>
+        <div class="li"><span>Gate / parking</span><span>Basement B2 · call on arrival</span></div>
+      </div>
+      ${ph("map", "MAP PREVIEW")}
+      <button class="btn sec">I'm on the way</button>
+      <button class="btn">Open navigation</button>
+    `, "today"),
+
+    map: () => shell("technician","Navigate", `
+      <div class="map"><div class="road"></div><div class="van"></div><div class="pin"></div></div>
+      <div class="card"><b>12, 5th Cross, Koramangala</b><div class="muted" style="margin-top:4px">4.2 km · 18 min</div></div>
+      <button class="btn">Arrived · on site</button>
+    `, "map", {back:"‹ Job", right:""}),
+
+    inspect: () => shell("technician","Inspection", `
+      <div class="cell" style="margin-bottom:10px"><label>Finding</label><b>Brake pads worn · AC gas low</b></div>
+      <div class="cell" style="margin-bottom:10px"><label>Recommend</label><b>Pads + fluid flush (no price)</b></div>
+      <div class="grid2"><div class="photo">Photo 1</div><div class="photo">+ Camera</div></div>
+      <p class="muted" style="margin:12px 0">Recommendations go to the sales advisor — you do not edit the customer estimate.</p>
+      <button class="btn">Submit findings to advisor</button>
+    `, "today"),
+
+    service: () => shell("technician","Service visit", `
+      <p class="muted" style="margin-bottom:10px">Work against approved job card lines · customer accepted on advisor call</p>
+      <div class="list">
+        <div class="li"><span>General service + health report</span><span class="chip ok">Done</span></div>
+        <div class="li"><span>AC gas refill</span><span class="chip ok">Done</span></div>
+        <div class="li"><span>Brake pads (pair)</span><span>Now</span></div>
+        <div class="li"><span>Brake fluid flush</span><span class="chip neutral">Queued</span></div>
+      </div>
+      <button class="btn sec">Record parts used</button>
+      <button class="btn">Go to QC</button>
+    `, "today"),
+
+    parts: () => shell("technician","Parts fitted", `
+      <p class="muted" style="margin-bottom:10px">Trace what you fitted — SKU, qty, notes. No selling price on this screen.</p>
+      <div class="list">
+        <div class="li row-ph">${ph("part", "SKU")}<div><span>Brake pad set · OEM</span><div class="muted">SKU BP-HC-19 · qty 1</div></div><span class="chip ok">Fitted</span></div>
+        <div class="li row-ph">${ph("part", "SKU")}<div><span>Brake fluid 500ml</span><div class="muted">SKU BF-500 · qty 1</div></div><span class="chip ok">Fitted</span></div>
+      </div>
+      <button class="btn sec">Scan barcode</button>
+      <button class="btn sec">+ Add part from van stock</button>
+      <button class="btn">Save parts for this visit</button>
+    `, "today"),
+
+    exception: () => shell("technician","Raise exception", `
+      <div class="banner">Something on site differs from the approved job card — do not change the bill yourself.</div>
+      <div class="cell" style="margin-bottom:10px"><label>What you found</label><b>Rotor scoring — pads alone not safe</b></div>
+      <div class="cell" style="margin-bottom:10px"><label>Requested action</label><b>Advisor review + customer callback</b></div>
+      <div class="grid2"><div class="photo">Evidence photo</div><div class="photo">+ Camera</div></div>
+      <p class="muted" style="margin:12px 0">Flags the sales advisor on admin. Visit may pause until scope is re-approved.</p>
+      <button class="btn">Submit exception to advisor</button>
+    `, "today"),
+
+    qc: () => shell("technician","QC", `
+      <div class="list">
+        <div class="li"><span>AC vent temp OK</span><span class="chip ok">Pass</span></div>
+        <div class="li"><span>No leak at fittings</span><span class="chip ok">Pass</span></div>
+        <div class="li"><span>Error codes clear</span><span class="chip ok">Pass</span></div>
+      </div>
+      <button class="btn">Mark visit complete</button>
+    `, "today"),
+
+    me: () => shell("technician","Imran", `
+      <div class="card"><span class="dot"></span><b>On duty</b><div class="muted" style="margin-top:4px">Skills: AC, electrics, brakes</div></div>
+      <div class="list">
+        <div class="li"><span>Today’s jobs</span><b>3</b></div>
+        <div class="li"><span>Sync</span><span class="chip ok">Online</span></div>
+        <div class="li"><span>Offline queue</span><b>0 pending</b></div>
+      </div>
+      <div class="card" style="margin-top:10px"><div class="muted">Queued events</div><div style="margin-top:4px">Check-ins, photos, and parts sync when back online</div></div>
+      <button class="btn sec">Contact support</button>
+    `, "me", {back:"", right:""}),
+  },
+
+  admin: {
+    "adm-01-inbox": () => adminFlowShell("advisorRevise", "adm-01-inbox", "Inbox", `
+      <div class="row" style="margin-bottom:12px"><b>Callback queue</b><span class="chip warn">3 waiting</span></div>
+      <div class="card" style="border-left:3px solid var(--accent-warn)">
+        <div class="row"><b>JC-1042</b><span class="chip warn">Call now</span></div>
+        <div style="margin-top:4px">Rajesh · submitted estimate · callback requested</div>
+        <div class="muted">₹5,999 indicative · AC + brake pads</div>
+        <button class="btn" style="margin-top:10px">Open & call customer</button>
+      </div>
+      <div class="card">
+        <div class="row"><b>JC-1043</b><span class="muted">8 min</span></div>
+        <div class="muted">Meera · one-man</div>
+      </div>
+    `, "inbox", {back:"", right:"Priya"}),
+
+    "adm-02-job": () => adminFlowShell("advisorRevise", "adm-02-job", "JC-1042 · on call", `
+      <span class="chip warn" style="margin-bottom:10px">Sales advisor on call with Rajesh</span>
+      <p class="muted" style="margin-bottom:10px">Only advisor edits estimate lines — field technician sees read-only job card later.</p>
+      <div class="cell" style="margin:10px 0"><label>Concerns</label><b>AC weak · brakes soft</b></div>
+      <div class="list">
+        <div class="li"><span>Health report</span><b>₹2,999</b></div>
+        <div class="li"><span>AC gas refill</span><b>₹1,200</b></div>
+        <div class="li"><span>Brake pads</span><b>₹1,800</b></div>
+      </div>
+      <p class="muted">Add or remove lines during the call — estimate may stay the same.</p>
+      <button class="btn">Edit estimate on call</button>
+    `, "inbox"),
+
+    "adm-03-estimate": () => adminFlowShell("advisorRevise", "adm-03-estimate", "Edit on call", `
+      <span class="chip warn" style="margin-bottom:10px">Sales advisor · live call</span>
+      <p class="muted" style="margin-bottom:10px">Advisor adds or removes lines with customer. Technician app never gets this screen.</p>
+      <div class="list">
+        <div class="li"><span>General service + health report</span><b>₹2,999</b></div>
+        <div class="li"><span>AC gas refill</span><b>₹1,200</b></div>
+        <div class="li"><span>Brake pads (pair)</span><b>₹2,200</b></div>
+        <div class="li"><span>Brake fluid flush</span><b>₹450</b></div>
+        <div class="li"><b>Total to send</b><b>₹6,849</b></div>
+      </div>
+      <button class="btn sec">+ Add line</button>
+      <button class="btn sec">Remove line</button>
+      <button class="btn">Ready to send to app</button>
+    `, "inbox"),
+
+    "adm-04-send": () => adminFlowShell("advisorRevise", "adm-04-send", "Send to app", `
+      <div class="card">
+        <div class="muted">Estimate on customer app · during call</div>
+        <div class="large">₹6,849</div>
+        <div class="muted">May match submitted cart — customer still Accepts or Denies</div>
+      </div>
+      <div class="banner">Customer sees ⑩ Accept / Deny · Accept → ⑪ Slot · Deny → repairs cart</div>
+      <button class="btn">Send to customer app now</button>
+      <button class="btn sec">Still on call with Rajesh</button>
+    `, "inbox"),
+
+    inbox: () => shell("admin","Inbox", `
+      <div class="row" style="margin-bottom:12px"><b>Call queue</b><span class="chip warn">4 waiting</span></div>
+      ${[
+        ["JC-1042","Rajesh · City","Health + AC","12 min"],
+        ["JC-1043","Meera · lighting","One-man","8 min"],
+        ["JC-1044","Arun · 2 cars","Inspect+repair","6 min"],
+      ].map(([id,n,p,w])=>`<div class="card"><div class="row"><b>${id}</b><span class="muted">${w}</span></div><div style="margin-top:4px">${n}</div><div class="muted">${p}</div><button class="btn" style="margin-top:10px">Call & confirm bill</button></div>`).join("")}
+    `, "inbox", {back:"", right:"Priya"}),
+
+    board: () => shell("admin","Jobs", `
+      <div class="search">Filter status, tech, area</div>
+      <div class="card"><div class="row"><b>JC-1042 City</b><span class="chip warn">Inspecting</span></div><div class="muted" style="margin-top:6px">Imran · Koramangala</div></div>
+      <div class="card"><div class="row"><b>JC-0991 Creta</b><span class="chip">Parts advance</span></div><div class="muted" style="margin-top:6px">Kavya</div></div>
+      <div class="card"><div class="row"><b>JC-1015 i20</b><span class="chip warn">Unassigned</span></div><div class="muted" style="margin-top:6px">Needs dispatch</div></div>
+    `, "board", {back:"", right:"All"}),
+
+    job: () => shell("admin","JC-1042", `
+      <span class="chip" style="margin-bottom:10px">Full edit · admin</span>
+      <div class="cell" style="margin:10px 0"><label>Concerns</label><b>AC weak on idle</b></div>
+      <div class="list">
+        <div class="li"><span>Health report</span><b>₹2,999</b></div>
+        <div class="li"><span>Cabin filter</span><b>₹650</b></div>
+        <div class="li"><span>Edit lines</span><span class="chev">›</span></div>
+      </div>
+      <button class="btn sec">Confirm bill (called)</button>
+      <button class="btn">Open estimate</button>
+      <button class="btn sec">Parts used on this job</button>
+    `, "board"),
+
+    estimate: () => shell("admin","Estimate", `
+      <p class="muted" style="margin-bottom:10px">Admin edits selling price · technician can propose lines separately</p>
+      <div class="list">
+        <div class="li"><span>Labour leak + gas</span><b>₹1,800</b></div>
+        <div class="li"><span>Condenser OEM</span><b>₹4,200</b></div>
+        <div class="li"><span>Parts advance</span><b>50% · ₹2,100</b></div>
+      </div>
+      <button class="btn">Publish to customer</button>
+      <button class="btn sec">Force-approve (on call)</button>
+    `, "board"),
+
+    dispatch: () => shell("admin","Dispatch", `
+      <div class="map"><div class="road"></div><div class="van"></div><div class="pin"></div></div>
+      <div class="card"><div class="row"><b>Imran</b><span class="muted">AC · 2 jobs</span></div><button class="btn" style="margin-top:10px">Assign JC-1042</button></div>
+      <div class="card"><div class="row"><b>Kavya</b><span class="muted">One-man · 1 job</span></div></div>
+      <div class="card"><div class="row"><b>Dev</b><span class="chip neutral">Off</span></div></div>
+    `, "board"),
+
+    override: () => shell("admin","Override", `
+      <div class="banner">Omnipotent · reason required · audit log</div>
+      <div class="grid2">
+        <div class="cell"><b>Force status</b><div class="muted">→ invoiced</div></div>
+        <div class="cell"><b>Move slot</b><div class="muted">Thu 9:00</div></div>
+        <div class="cell"><b>Cash / offline</b><div class="muted">₹2,100</div></div>
+        <div class="cell"><b>Desk complete</b><div class="muted">Tech phone down</div></div>
+      </div>
+      <div class="cell" style="margin:10px 0"><label>Reason</label><b>Agreed condenser on WhatsApp</b></div>
+      <button class="btn">Apply override</button>
+      <button class="btn ghost">Cancel job</button>
+    `, "board"),
+
+    inventory: () => shell("admin","Inventory", `
+      <div class="search">Search SKU or OEM</div>
+      <div class="row" style="margin-bottom:10px"><span class="chip warn">2 low stock</span><span class="muted">Warehouse + vans</span></div>
+      <div class="list">
+        <div class="li"><div><b>Cabin filter</b><div class="muted">WH 14 · Van A 3</div></div><b>17</b></div>
+        <div class="li"><div><b>R134a gas 250g</b><div class="muted">WH 4 · Van A 1</div></div><span class="chip warn">5</span></div>
+        <div class="li"><div><b>City condenser OEM</b><div class="muted">WH 1 · on order</div></div><span class="chip warn">1</span></div>
+        <div class="li"><div><b>PAG oil 250ml</b><div class="muted">WH 22</div></div><b>22</b></div>
+      </div>
+      <button class="btn sec">Receive stock</button>
+    `, "more"),
+
+    used: () => shell("admin","Used · JC-1042", `
+      <p class="muted" style="margin-bottom:10px">Rajesh · Honda City 2019 · fitted by Imran</p>
+      <div class="list">
+        <div class="li"><div><b>Cabin filter</b><div class="muted">SKU CF-HON-01 · qty 1</div></div><span class="muted">Visit 1</span></div>
+        <div class="li"><div><b>City condenser OEM</b><div class="muted">SKU COND-CITY · qty 1</div></div><span class="muted">Visit 2</span></div>
+        <div class="li"><div><b>R134a gas</b><div class="muted">250g · qty 1</div></div><span class="muted">Visit 2</span></div>
+      </div>
+      <div class="card"><div class="muted">Warranty trail</div><b style="display:block;margin-top:4px">These lines are what was actually used on this car.</b></div>
+      <button class="btn sec">Correct a SKU</button>
+    `, "board"),
+
+    custparts: () => shell("admin","Rajesh · parts", `
+      <p class="muted" style="margin-bottom:10px">All cars · all jobs</p>
+      <div class="card"><b>City 2019</b><div class="muted" style="margin-top:4px">JC-1042 · condenser, filter, gas · 19 Aug</div></div>
+      <div class="card"><b>City 2019</b><div class="muted" style="margin-top:4px">JC-0881 · H4 bulb ×2 · 2 Aug</div></div>
+      <div class="card"><b>Creta 2021</b><div class="muted" style="margin-top:4px">No parts yet</div></div>
+    `, "people"),
+
+    people: () => shell("admin","People", `
+      <div class="search">Search name or phone</div>
+      <div class="card"><div class="row"><b>Rajesh Kumar</b><span class="muted">Customer</span></div><div class="muted" style="margin-top:4px">3 jobs · City + Creta</div></div>
+      <div class="card"><div class="row"><b>Imran</b><span class="chip ok">Tech · active</span></div></div>
+      <div class="card"><div class="row"><b>Kavya</b><span class="chip ok">Tech · active</span></div></div>
+      <button class="btn sec">Create technician</button>
+    `, "people", {back:"", right:"+"}),
+
+    tech: () => shell("admin","Imran", `
+      <div class="card">
+        <div class="row"><span><span class="dot"></span><b>On duty</b></span><span class="chip">Van A</span></div>
+        <div class="muted" style="margin-top:6px">AC · electrics · last ping 2 min · Koramangala</div>
+      </div>
+      <div class="grid2">
+        <div class="cell"><label>Today</label><b>2 / 3 jobs</b></div>
+        <div class="cell"><label>This week</label><b>11 done</b></div>
+        <div class="cell"><label>Rating</label><b>4.8</b></div>
+        <div class="cell"><label>On site</label><b>JC-1042</b></div>
+      </div>
+      <p class="section-title">Today</p>
+      <div class="list">
+        <div class="li"><span>11:00 inspect City</span><span class="chip warn">Now</span></div>
+        <div class="li"><span>16:30 repair Swift</span><span class="chip neutral">Queued</span></div>
+      </div>
+      <p class="section-title">Parts fitted (week)</p>
+      <div class="list">
+        <div class="li"><span>Condenser OEM</span><b>1</b></div>
+        <div class="li"><span>Cabin filters</span><b>4</b></div>
+      </div>
+      <button class="btn sec">Reassign current job</button>
+      <button class="btn ghost">Disable technician</button>
+    `, "people"),
+
+    book: () => shell("admin","Book for customer", `
+      <p class="muted" style="margin-bottom:12px">Walk-in or WhatsApp. Creates the same job card.</p>
+      <div class="cell" style="margin-bottom:10px"><label>Customer</label><b>Rajesh Kumar · +91…</b></div>
+      <div class="cell" style="margin-bottom:10px"><label>Package</label><b>One-man job</b></div>
+      <div class="cell" style="margin-bottom:10px"><label>Car</label><b>City 2019</b></div>
+      <button class="btn">Create JC-1045</button>
+    `, "people"),
+
+    money: () => shell("admin","Payments", `
+      <div class="card"><div class="muted">Today</div><div class="large">₹41,200</div></div>
+      <div class="list">
+        <div class="li"><span>JC-1042 UPI advance</span><b>₹2,100</b></div>
+        <div class="li"><span>JC-0991 cash</span><b>₹399</b></div>
+        <div class="li"><span>Refund JC-0802</span><span style="color:var(--danger);font-weight:600">-₹650</span></div>
+      </div>
+      <button class="btn sec">Record offline payment</button>
+    `, "more"),
+
+    catalog: () => shell("admin","Catalog", `
+      <div class="list">
+        <div class="li"><span>Health report</span><b>₹2,999</b></div>
+        <div class="li"><span>Inspect + repair</span><b>Quote</b></div>
+        <div class="li"><span>One-man</span><b>₹399</b></div>
+        <div class="li"><span>2nd car discount</span><b>10%</b></div>
+        <div class="li"><span>Parts advance</span><b>50%</b></div>
+      </div>
+      <p class="muted">Customer app reads these live. No hardcoded prices.</p>
+    `, "more"),
+
+    more: () => shell("admin","More", `
+      <div class="list">
+        <div class="li"><span>Inventory</span><span class="chev">›</span></div>
+        <div class="li"><span>Technician tracking</span><span class="chev">›</span></div>
+        <div class="li"><span>Landing photos / copy</span><span class="chev">›</span></div>
+        <div class="li"><span>Reports</span><span class="chev">›</span></div>
+        <div class="li"><span>Service hours & radius</span><span class="chev">›</span></div>
+        <div class="li"><span>Audit log</span><span class="chev">›</span></div>
+      </div>
+      <p class="muted" style="margin-top:8px">Admin controls the entire company from this app.</p>
+    `, "more", {back:"", right:""}),
+  },
+};
+
+let face = "customer";
+let folder = "general";
+let screen = "gs-01-home";
+
+function defaultFolder(faceId) {
+  if (faceId === "customer") return "general";
+  if (faceId === "technician") return "fieldVisit";
+  if (faceId === "admin") return "advisorRevise";
+  return Object.keys(apps[faceId].folders)[0];
+}
+
+function render() {
+  const folders = apps[face].folders;
+  if (!folders[folder]) folder = defaultFolder(face);
+
+  document.getElementById("faces").innerHTML = Object.entries(apps).map(([id,a]) =>
+    `<button class="${face===id?"on":""}" data-f="${id}">${a.label}</button>`
+  ).join("");
+  document.querySelectorAll("#faces button").forEach(b => b.onclick = () => {
+    face = b.dataset.f;
+    folder = defaultFolder(face);
+    screen = apps[face].folders[folder].screens[0][0];
+    render();
+  });
+
+  const foldersEl = document.getElementById("folders");
+  const hintEl = document.getElementById("folder-hint");
+  foldersEl.style.display = "flex";
+  foldersEl.innerHTML = Object.entries(folders).map(([id,f]) =>
+    `<button class="${folder===id?"on":""}" data-folder="${id}">${f.label}</button>`
+  ).join("");
+  document.querySelectorAll("#folders button").forEach(b => b.onclick = () => {
+    folder = b.dataset.folder;
+    screen = apps[face].folders[folder].screens[0][0];
+    render();
+  });
+  hintEl.textContent = folders[folder].hint;
+  hintEl.style.display = "block";
+  document.getElementById("chips").innerHTML = folders[folder].screens.map(([id,l]) =>
+    `<button class="${screen===id?"on":""}" data-s="${id}">${l}</button>`
+  ).join("");
+
+  document.querySelectorAll("#chips button").forEach(b => b.onclick = () => { screen = b.dataset.s; render(); });
+  const screenFn = ui[face][screen];
+  document.getElementById("screen").innerHTML = screenFn ? screenFn() : `<p class="muted">Screen not found: ${screen}</p>`;
+  const c = copy[face][screen] || ["", ""];
+  document.getElementById("explain").innerHTML = `<h2>${c[0]}</h2><p>${c[1]}</p>`;
+}
+render();
+</script>
+</body>
+</html>

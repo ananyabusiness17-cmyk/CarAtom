@@ -1,0 +1,9 @@
+version: 1
+intent: payment_verified
+channels:
+  push:
+    title: "Payment received"
+    body: "We confirmed your payment for {{service_name}}."
+  sms:
+    body: "CARATOM: Payment received. Open: {{deep_link_short}}"
+deep_link_template: "caratom://payment/{{invoice_id}}"

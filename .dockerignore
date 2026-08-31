@@ -1,0 +1,13 @@
+node_modules
+.next
+.venv
+.git
+*.md
+docs
+e2e
+apps/customer
+apps/technician
+apps/admin-mobile
+security
+test-results
+playwright-report

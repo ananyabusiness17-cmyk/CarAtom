@@ -1,0 +1,12 @@
+version: 1
+intent: advisor_revised
+channels:
+  push:
+    title: "Updated estimate from advisor"
+    body: "Your {{service_name}} estimate was updated. Review the new total."
+  sms:
+    body: "CARATOM: Your estimate was updated. Open: {{deep_link_short}}"
+  whatsapp:
+    template_name: "caratom_advisor_revised"
+    params: [service_name, deep_link_short]
+deep_link_template: "caratom://estimate/{{job_card_id}}"

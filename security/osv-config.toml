@@ -1,0 +1,64 @@
+# OSV-Scanner ignore list (2026-08-30).
+# Ignore only when the advisory is not exploitable in this repo AND
+# bumping would break the Expo SDK 52 / FastAPI 0.115 freeze.
+# See security/SECURITY_BASELINE.md.
+
+[[PackageOverrides]]
+name = "next"
+ecosystem = "npm"
+ignore = true
+reason = "Admin web is pinned to Next 15.1.7. Do not bump to 15.5+ without a dedicated upgrade phase."
+
+[[PackageOverrides]]
+name = "@xmldom/xmldom"
+ecosystem = "npm"
+ignore = true
+reason = "Transitive Expo SDK 52 dependency. First-party code does not parse untrusted XML."
+
+[[PackageOverrides]]
+name = "image-size"
+ecosystem = "npm"
+ignore = true
+reason = "Transitive Expo SDK 52 dependency. Not a first-party HTTP parser."
+
+[[PackageOverrides]]
+name = "cryptography"
+ecosystem = "PyPI"
+ignore = true
+reason = "Pinned cryptography>=44,<45 with PyJWT. A 46+ bump is outside the FastAPI freeze."
+
+[[PackageOverrides]]
+name = "starlette"
+ecosystem = "PyPI"
+ignore = true
+reason = "Starlette is pulled by FastAPI 0.115. Starlette 1.x is a major, incompatible bump."
+
+[[PackageOverrides]]
+name = "pytest"
+ecosystem = "PyPI"
+ignore = true
+reason = "Dev-only test runner; not a production runtime dependency."
+
+[[PackageOverrides]]
+name = "postcss"
+ecosystem = "npm"
+ignore = true
+reason = "Next 15.1.7 pins postcss 8.4.31; Tailwind 3.4 admin CSS is first-party build-time only. Patch is 8.5.23 (outside the Next freeze)."
+
+[[PackageOverrides]]
+name = "sharp"
+ecosystem = "npm"
+ignore = true
+reason = "Optional Next 15.1.7 image optimizer. Patch is sharp 0.35 (breaking). We do not process untrusted images through sharp."
+
+[[PackageOverrides]]
+name = "tar"
+ecosystem = "npm"
+ignore = true
+reason = "Transitive Expo SDK 52 / Expo CLI. Patch is tar 7.x. First-party code does not extract untrusted archives."
+
+[[PackageOverrides]]
+name = "uuid"
+ecosystem = "npm"
+ignore = true
+reason = "Transitive Expo SDK 52 (xcode, Expo telemetry). Patch is uuid 11+. First-party code does not pass attacker buffers to uuid v3/v5/v6."

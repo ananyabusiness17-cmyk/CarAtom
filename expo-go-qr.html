@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CARATOM Expo Go · Phases 01–12</title>
+    <style>
+      :root {
+        --canvas: #f7fafc;
+        --surface: #ffffff;
+        --text-strong: #142532;
+        --text: #243744;
+        --text-muted: #6a7b86;
+        --border: #dce8ef;
+        --brand: #5db7e8;
+        --brand-strong: #176b9e;
+        --brand-soft: #eaf6fc;
+        --warning: #b56a22;
+        --warning-soft: #fff3e5;
+        --ok: #1f7a4d;
+        --ok-soft: #e8f6ee;
+      }
+      * { box-sizing: border-box; }
+      body {
+        font-family: "DM Sans", "Segoe UI", system-ui, sans-serif;
+        background: var(--canvas);
+        color: var(--text-strong);
+        margin: 0;
+        padding: 32px 24px 48px;
+      }
+      .kicker {
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--brand-strong);
+        letter-spacing: 0.02em;
+        margin: 0 0 6px;
+      }
+      h1 {
+        font-size: 22px;
+        line-height: 28px;
+        font-weight: 700;
+        margin: 0 0 8px;
+      }
+      .lede {
+        color: var(--text-muted);
+        font-size: 15px;
+        line-height: 22px;
+        margin: 0 0 16px;
+        max-width: 62ch;
+      }
+      .phase-strip {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin: 0 0 20px;
+        max-width: 72ch;
+      }
+      .phase-strip span {
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--text-muted);
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        padding: 4px 9px;
+      }
+      .phase-strip span.now {
+        color: var(--brand-strong);
+        border-color: var(--brand);
+        background: var(--brand-soft);
+      }
+      .web-note {
+        font-size: 13px;
+        line-height: 20px;
+        color: var(--text);
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 12px 14px;
+        margin: 0 0 24px;
+        max-width: 62ch;
+      }
+      .web-note strong { color: var(--text-strong); }
+      .web-note code {
+        display: inline;
+        font-size: 12px;
+        word-break: break-all;
+      }
+      .host-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
+        margin: 0 0 28px;
+      }
+      .host-row label {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--text);
+      }
+      .host-row input {
+        font: inherit;
+        font-size: 14px;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 8px 12px;
+        width: 160px;
+        color: var(--text-strong);
+        background: var(--surface);
+      }
+      .host-row input:focus {
+        outline: 2px solid var(--brand);
+        border-color: var(--brand);
+      }
+      .grid {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+      }
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 20px;
+        width: 300px;
+      }
+      .card.live {
+        border-color: var(--brand);
+        background: var(--brand-soft);
+      }
+      .card.live .qr-wrap {
+        background: var(--surface);
+      }
+      .chip {
+        display: inline-block;
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--brand-strong);
+        background: var(--surface);
+        border: 1px solid var(--brand);
+        border-radius: 999px;
+        padding: 4px 10px;
+        margin-bottom: 10px;
+      }
+      .chip.warn {
+        color: var(--warning);
+        border-color: #e07a3d;
+        background: var(--warning-soft);
+      }
+      .chip.muted {
+        color: var(--text-muted);
+        border-color: var(--border);
+        background: var(--canvas);
+      }
+      .chip.ok {
+        color: var(--ok);
+        border-color: #6cbc90;
+        background: var(--ok-soft);
+      }
+      .chip.down {
+        color: var(--warning);
+        border-color: #e07a3d;
+        background: var(--warning-soft);
+      }
+      .name {
+        font-size: 16px;
+        font-weight: 700;
+        margin: 0 0 6px;
+      }
+      .blurb {
+        font-size: 13px;
+        line-height: 18px;
+        color: var(--text-muted);
+        margin: 0 0 14px;
+        min-height: 54px;
+      }
+      .rail {
+        display: flex;
+        justify-content: center;
+        gap: 5px;
+        align-items: center;
+        margin: 0 0 14px;
+      }
+      .dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 4px;
+        background: var(--border);
+      }
+      .dot.on {
+        width: 9px;
+        height: 9px;
+        border-radius: 5px;
+        background: var(--brand);
+      }
+      .dot.done { background: var(--brand); opacity: 0.45; }
+      .qr-wrap {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 16px;
+        border-radius: 12px;
+        background: #ffffff;
+        margin-bottom: 12px;
+        min-height: 252px;
+      }
+      .qr-wrap svg {
+        width: 220px;
+        height: 220px;
+        display: block;
+      }
+      code {
+        display: block;
+        font-size: 12px;
+        word-break: break-all;
+        color: var(--text);
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <p class="kicker">Phases 01–12 · LAN Expo Go</p>
+    <h1>Scan with Expo Go</h1>
+    <p class="lede">
+      Same Wi-Fi as this PC. Codes are black on white so Expo Go can read them.
+      After Metro is up, open this file again or pull-to-reload in Expo Go so you get a fresh bundle, not a cached one.
+      Do not use the localhost:808x bundler page — that is not a QR screen.
+    </p>
+    <div class="phase-strip" aria-label="Phases 01 through 12">
+      <span>01 Foundation</span>
+      <span>02 Identity</span>
+      <span>03 General service</span>
+      <span>04 Service + repair</span>
+      <span>05 One-man / SOS</span>
+      <span>06 Technician</span>
+      <span>07 Inspection</span>
+      <span>08 Payments</span>
+      <span>09 Admin web</span>
+      <span>10 Admin mobile</span>
+      <span>11 Hardening</span>
+      <span class="now">12 Production</span>
+    </div>
+    <p class="web-note">
+      <strong>Admin web</strong> is the browser, not Expo Go:
+      <code data-url="3000">http://192.168.0.2:3000</code>
+      — inventory, catalog, people, payments, on-behalf booking, job editor, mark parts ready, overrides, audit.
+      Phone apps: customer 8081, technician 8082, admin-mobile 8083.
+    </p>
+    <div class="host-row">
+      <label for="lan-host">This PC’s Wi-Fi IP</label>
+      <input id="lan-host" type="text" spellcheck="false" autocomplete="off" value="192.168.0.2" />
+    </div>
+    <div class="grid">
+      <div class="card live">
+        <span class="chip" data-status="8081">Customer · 8081</span>
+        <div class="name">Customer</div>
+        <p class="blurb">
+          Home, booking, SOS, invoice, review. Empty vehicle/checkout drafts (no Rajesh/Honda City prefills). Help deep-links to /sos/pick.
+        </p>
+        <div class="rail" aria-hidden="true">
+          <span class="dot done"></span><span class="dot done"></span><span class="dot done"></span>
+          <span class="dot done"></span><span class="dot done"></span><span class="dot done"></span>
+          <span class="dot done"></span><span class="dot done"></span><span class="dot done"></span>
+          <span class="dot done"></span><span class="dot done"></span><span class="dot on"></span>
+        </div>
+        <div class="qr-wrap" id="qr-8081"></div>
+        <code data-url="8081">exp://192.168.0.2:8081</code>
+      </div>
+      <div class="card live">
+        <span class="chip" data-status="8082">Technician · 8082</span>
+        <div class="name">Technician</div>
+        <p class="blurb">Jobs / Map / Me. Record real inspection findings and camera evidence. Parts stay empty until you add them. SKU receive is admin web.</p>
+        <div class="qr-wrap" id="qr-8082"></div>
+        <code data-url="8082">exp://192.168.0.2:8082</code>
+      </div>
+      <div class="card live">
+        <span class="chip warn" data-status="8083">Admin mobile · 8083</span>
+        <div class="name">Admin mobile</div>
+        <p class="blurb">
+          Advisor inbox, board, dispatch, override. Estimate editor seeds from the live job, not demo lines. Dense ops stay on admin web.
+        </p>
+        <div class="qr-wrap" id="qr-8083"></div>
+        <code data-url="8083">exp://192.168.0.2:8083</code>
+      </div>
+    </div>
+    <script src="expo-go-qrcode.min.js"></script>
+    <script>
+      (function () {
+        var DEFAULT_HOST = "192.168.0.2";
+        var PORTS = [8081, 8082, 8083];
+        var input = document.getElementById("lan-host");
+
+        function host() {
+          var value = (input.value || "").trim();
+          return value || DEFAULT_HOST;
+        }
+
+        function drawQr(mount, text) {
+          var hidden = document.createElement("div");
+          hidden.style.position = "absolute";
+          hidden.style.left = "-9999px";
+          document.body.appendChild(hidden);
+          var qr = new QRCode(hidden, {
+            text: text,
+            width: 220,
+            height: 220,
+            colorDark: "#000000",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.M,
+          });
+          var code = qr._oQRCode;
+          var n = code.getModuleCount();
+          var ns = "http://www.w3.org/2000/svg";
+          var svg = document.createElementNS(ns, "svg");
+          svg.setAttribute("viewBox", "0 0 " + n + " " + n);
+          svg.setAttribute("width", "220");
+          svg.setAttribute("height", "220");
+          svg.setAttribute("shape-rendering", "crispEdges");
+          svg.setAttribute("role", "img");
+          svg.setAttribute("aria-label", text);
+          var bg = document.createElementNS(ns, "rect");
+          bg.setAttribute("width", String(n));
+          bg.setAttribute("height", String(n));
+          bg.setAttribute("fill", "#ffffff");
+          svg.appendChild(bg);
+          for (var y = 0; y < n; y++) {
+            for (var x = 0; x < n; x++) {
+              if (!code.isDark(y, x)) continue;
+              var cell = document.createElementNS(ns, "rect");
+              cell.setAttribute("x", String(x));
+              cell.setAttribute("y", String(y));
+              cell.setAttribute("width", "1");
+              cell.setAttribute("height", "1");
+              cell.setAttribute("fill", "#000000");
+              svg.appendChild(cell);
+            }
+          }
+          mount.innerHTML = "";
+          mount.appendChild(svg);
+          document.body.removeChild(hidden);
+        }
+
+        function render() {
+          var ip = host();
+          PORTS.forEach(function (port) {
+            var url = "exp://" + ip + ":" + port;
+            document.querySelector("code[data-url='" + port + "']").textContent = url;
+            drawQr(document.getElementById("qr-" + port), url);
+          });
+          var adminWeb = document.querySelector("code[data-url='3000']");
+          if (adminWeb) adminWeb.textContent = "http://" + ip + ":3000";
+        }
+
+        function ping(port) {
+          var chip = document.querySelector("[data-status='" + port + "']");
+          var controller = new AbortController();
+          var timer = setTimeout(function () { controller.abort(); }, 2000);
+          fetch("http://" + host() + ":" + port + "/status", {
+            signal: controller.signal,
+            mode: "no-cors",
+          })
+            .then(function () {
+              clearTimeout(timer);
+              chip.textContent = "Metro up · " + port;
+              chip.classList.remove("down", "warn", "muted");
+              chip.classList.add("ok");
+            })
+            .catch(function () {
+              clearTimeout(timer);
+              chip.textContent = "Start Metro · " + port;
+              chip.classList.remove("ok");
+              chip.classList.add("down");
+            });
+        }
+
+        input.addEventListener("change", render);
+        input.addEventListener("keyup", function (event) {
+          if (event.key === "Enter") render();
+        });
+        render();
+        PORTS.forEach(ping);
+      })();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,9 @@
+version: 1
+intent: parts_advance_due
+channels:
+  push:
+    title: "Parts advance due"
+    body: "Pay the parts advance to schedule the repair visit."
+  sms:
+    body: "CARATOM: Parts advance due. Open: {{deep_link_short}}"
+deep_link_template: "caratom://payment/{{invoice_id}}"

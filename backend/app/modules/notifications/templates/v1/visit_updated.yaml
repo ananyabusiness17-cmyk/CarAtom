@@ -1,0 +1,7 @@
+version: 1
+intent: visit_updated
+channels:
+  push:
+    title: "Visit updated"
+    body: "Details changed for your assigned visit."
+deep_link_template: "caratom://visit/{{visit_id}}"

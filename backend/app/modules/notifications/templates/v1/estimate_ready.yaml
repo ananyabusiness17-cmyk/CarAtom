@@ -1,0 +1,12 @@
+version: 1
+intent: estimate_ready
+channels:
+  push:
+    title: "Your estimate is ready"
+    body: "Review and accept your {{service_name}} estimate."
+  sms:
+    body: "CARATOM: Your estimate is ready. Open: {{deep_link_short}}"
+  whatsapp:
+    template_name: "caratom_estimate_ready"
+    params: [service_name, deep_link_short]
+deep_link_template: "caratom://estimate/{{job_card_id}}"

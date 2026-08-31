@@ -1,0 +1,29 @@
+title = "CARATOM gitleaks"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Placeholder env examples, Trail of Bits skill fixtures, and documented fake keys — never allow real credentials"
+paths = [
+  '''(.*[/\\])?\.env\.example$''',
+  '''(.*[/\\])?SECURITY_BASELINE\.md$''',
+  '''(.*[/\\])?SECURITY_AUDIT\.md$''',
+  '''(.*[/\\])?THREAT_MODEL\.md$''',
+  '''gitleaks\.toml$''',
+  '''(.*[/\\])?\.cursor[/\\]skills[/\\]''',
+  '''(.*[/\\])?\.agents[/\\]skills[/\\]''',
+  '''(.*[/\\])?node_modules[/\\]''',
+  '''(.*[/\\])?\.venv[/\\]''',
+  '''(.*[/\\])?\.next[/\\]''',
+  '''(.*[/\\])?\.expo[/\\]''',
+  '''(.*[/\\])?scripts[/\\]security[/\\]bin[/\\]''',
+]
+
+regexes = [
+  '''rzp_test_dev''',
+  '''your-project\.supabase\.co''',
+  '''caratom_dev''',
+  '''example\.supabase\.co''',
+  '''[Ii]dempotency[- ][Kk]ey''',
+]

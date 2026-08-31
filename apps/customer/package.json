@@ -1,0 +1,53 @@
+{
+  "name": "@caratom/customer",
+  "version": "1.0.0",
+  "private": true,
+  "main": "expo-router/entry",
+  "scripts": {
+    "start": "expo start --lan --port 8081",
+    "android": "expo start --android --port 8081",
+    "ios": "expo start --ios --port 8081",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "npx tsx src/lib/modeTabs.test.ts && npx tsx src/lib/homeContent.test.ts && npx tsx src/coordinators/generalServiceCoordinator.test.ts && npx tsx src/coordinators/serviceRepairCoordinator.test.ts && npx tsx src/coordinators/oneManCoordinator.test.ts && npx tsx src/coordinators/sosCoordinator.test.ts && npx tsx src/coordinators/inspectionRepairCoordinator.test.ts && npx tsx src/stores/vehicleDraftStore.test.ts && npx tsx src/stores/repairCartStore.test.ts && npx tsx src/lib/formatSlotLabel.test.ts && npx tsx src/components/FlowRail.test.ts && npx tsx src/lib/homeRepairCta.test.ts && npx tsx src/lib/osmMapHtml.test.ts && npx tsx src/lib/routeParam.test.ts && npx tsx src/lib/stackBack.test.ts && npx tsx src/lib/presentVehicle.test.ts && npx tsx src/lib/createFlowJobCard.test.ts && npx tsx src/linking/parseDeepLink.test.ts && npx tsx src/recovery/staleEstimate.test.ts && npx tsx src/lib/legal.test.ts && npx tsx src/features/booking/bookingCoordinator.test.ts"
+  },
+  "dependencies": {
+    "@caratom/analytics": "workspace:*",
+    "@caratom/api-client": "workspace:*",
+    "@caratom/contracts": "workspace:*",
+    "@caratom/ui-tokens": "workspace:*",
+    "@expo-google-fonts/dm-sans": "^0.2.3",
+    "@hookform/resolvers": "^3.10.0",
+    "@react-native-async-storage/async-storage": "^1.23.1",
+    "@react-native-community/netinfo": "^11.4.1",
+    "@shopify/flash-list": "1.7.3",
+    "@supabase/supabase-js": "^2.49.1",
+    "@tanstack/react-query": "^5.102.8",
+    "expo": "~52.0.0",
+    "expo-constants": "~17.0.0",
+    "expo-font": "~13.0.0",
+    "expo-linking": "~7.0.0",
+    "expo-location": "~18.0.10",
+    "expo-notifications": "~0.29.14",
+    "expo-router": "~4.0.0",
+    "expo-secure-store": "~14.0.0",
+    "expo-status-bar": "~2.0.0",
+    "expo-updates": "~0.26.19",
+    "react": "18.3.1",
+    "react-hook-form": "^7.87.0",
+    "react-native": "0.76.9",
+    "react-native-gesture-handler": "~2.20.2",
+    "react-native-safe-area-context": "4.12.0",
+    "react-native-screens": "~4.4.0",
+    "react-native-url-polyfill": "^2.0.0",
+    "react-native-webview": "13.12.5",
+    "zod": "3.24.2",
+    "zustand": "^5.0.15"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.26.0",
+    "@types/react": "~18.3.12",
+    "tsx": "^4.19.2",
+    "typescript": "5.7.3"
+  }
+}

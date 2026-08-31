@@ -1,0 +1,9 @@
+version: 1
+intent: visit_complete
+channels:
+  push:
+    title: "Service complete"
+    body: "Your {{service_name}} visit is complete."
+  sms:
+    body: "CARATOM: Service complete. Open: {{deep_link_short}}"
+deep_link_template: "caratom://booking/{{booking_id}}"

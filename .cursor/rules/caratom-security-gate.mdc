@@ -1,0 +1,19 @@
+---
+description: Mandatory full-repo security gate from Phase 8 onward (Semgrep, Gitleaks, OSV, optional ZAP).
+alwaysApply: true
+---
+
+# CARATOM security gate (Phase 8+)
+
+Phase 1–7 product work is complete. From **Phase 8 onward**, do not mark a phase complete until the **entire repository** has been scanned.
+
+```text
+IMPLEMENT PHASE → tests → typecheck → lint → pnpm security (entire repo)
+→ fix CRITICAL/HIGH (MEDIUM practical) → rerun suite → then phase complete
+```
+
+UI-only phases still run the **full** suite. Do not scan only the diff. Do not point DAST at production.
+
+Load skill `caratom-security-gate`. Details: `security/README.md`.
+
+Never paste live secrets into chat or markdown.

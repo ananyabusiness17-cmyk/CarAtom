@@ -1,0 +1,39 @@
+exclude:
+  - node_modules
+  - "**/node_modules/**"
+  - backend/.venv
+  - "**/.venv/**"
+  - dist
+  - "**/.next/**"
+  - "**/.expo/**"
+  - "**/__pycache__/**"
+  - scripts/security/bin
+  - .agents/skills
+  - .cursor/skills
+
+rules:
+  - id: caratom-no-service-role-in-upload-headers
+    languages: [python]
+    severity: ERROR
+    message: Never return Supabase service-role Authorization headers to clients. Mint a Storage signed upload URL server-side and return Content-Type only.
+    paths:
+      include:
+        - "**/backend/app/modules/media/**/*.py"
+    pattern: |
+      return $URL, {"Authorization": f"Bearer {settings.supabase_service_role_key}", ...}, $EXP
+
+  - id: caratom-dev-capture-must-gate-environment
+    languages: [python]
+    severity: ERROR
+    message: POST /v1/dev/payments/{id}/capture must call require_dev_environment() so it 404s in production.
+    paths:
+      include:
+        - "**/backend/app/modules/inspection_repair/router.py"
+    patterns:
+      - pattern: |
+          def capture_payment_dev(...):
+            ...
+      - pattern-not: |
+          def capture_payment_dev(...):
+            require_dev_environment()
+            ...

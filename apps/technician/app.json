@@ -1,0 +1,52 @@
+{
+  "expo": {
+    "name": "CARATOM Technician",
+    "slug": "caratom-technician",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": ["caratom-technician", "caratom"],
+    "platforms": ["ios", "android"],
+    "sdkVersion": "52.0.0",
+    "userInterfaceStyle": "light",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "enabled": false,
+      "checkAutomatically": "ON_LOAD",
+      "fallbackToCacheTimeout": 0
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      "expo-font",
+      "expo-notifications",
+      "expo-updates",
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "CARATOM uses your location to navigate to customer addresses and record arrival."
+        }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "CARATOM uses the camera to capture inspection and service evidence."
+        }
+      ]
+    ],
+    "ios": {
+      "bundleIdentifier": "in.caratom.technician",
+      "associatedDomains": ["applinks:staging.caratom.app"],
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "CARATOM uses your location to navigate to customer addresses and record arrival.",
+        "NSCameraUsageDescription": "CARATOM uses the camera to capture inspection and service evidence."
+      }
+    },
+    "android": {
+      "package": "in.caratom.technician",
+      "usesCleartextTraffic": true,
+      "permissions": ["ACCESS_COARSE_LOCATION", "ACCESS_FINE_LOCATION", "CAMERA"]
+    }
+  }
+}

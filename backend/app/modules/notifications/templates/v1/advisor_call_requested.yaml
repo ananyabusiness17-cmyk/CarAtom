@@ -1,0 +1,9 @@
+version: 1
+intent: advisor_call_requested
+channels:
+  push:
+    title: "We'll call you shortly"
+    body: "An advisor will call about your {{service_name}} request."
+  sms:
+    body: "CARATOM: We'll call you shortly about your {{service_name}} request."
+deep_link_template: "caratom://advisor/{{job_card_id}}"

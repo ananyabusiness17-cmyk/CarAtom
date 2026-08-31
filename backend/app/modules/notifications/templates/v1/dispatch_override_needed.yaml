@@ -1,0 +1,7 @@
+version: 1
+intent: dispatch_override_needed
+channels:
+  push:
+    title: "Dispatch override needed"
+    body: "A job needs an ops override."
+deep_link_template: "caratom://notifications"

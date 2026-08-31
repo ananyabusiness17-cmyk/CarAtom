@@ -1,0 +1,9 @@
+version: 1
+intent: technician_assigned
+channels:
+  push:
+    title: "Technician assigned"
+    body: "A technician is assigned for your {{service_name}} visit."
+  sms:
+    body: "CARATOM: Technician assigned. Open: {{deep_link_short}}"
+deep_link_template: "caratom://booking/{{booking_id}}"
