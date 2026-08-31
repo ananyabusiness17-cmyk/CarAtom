@@ -199,58 +199,35 @@ class IdSequence(Base):
 
 
 def import_phase03_models() -> None:
-    from app.modules.addresses.models import Address  # noqa: F401
-    from app.modules.advisor.models import (  # noqa: F401
-        AdvisorCallAttempt,
-        AdvisorCase,
-        AdvisorNote,
+    import sys
+
+    # Skip a module that is already in sys.modules: it is fully loaded, or it is
+    # the caller of this function (circular: invoices.models → Base → here).
+    modules = (
+        "app.modules.addresses.models",
+        "app.modules.advisor.models",
+        "app.modules.audit.models",
+        "app.modules.bookings.models",
+        "app.modules.catalog.kit_models",
+        "app.modules.estimates.models",
+        "app.modules.field_work.models",
+        "app.modules.inspections.models",
+        "app.modules.inventory.models",
+        "app.modules.invoices.models",
+        "app.modules.job_cards.models",
+        "app.modules.notifications.models",
+        "app.modules.payments.models",
+        "app.modules.reviews.models",
+        "app.modules.slots.models",
+        "app.modules.support.models",
+        "app.modules.technicians.models",
+        "app.modules.vehicles.models",
+        "app.modules.visits.models",
     )
-    from app.modules.audit.models import AuditLog  # noqa: F401
-    from app.modules.bookings.models import Booking, BookingSnapshot  # noqa: F401
-    from app.modules.catalog.kit_models import CatalogKitLine  # noqa: F401
-    from app.modules.estimates.models import (  # noqa: F401
-        Estimate,
-        EstimateAcceptance,
-        EstimateLineItem,
-        EstimateRejection,
-    )
-    from app.modules.field_work.models import JobLabour, JobPart, QcCheck  # noqa: F401
-    from app.modules.inspections.models import Inspection, InspectionFinding  # noqa: F401
-    from app.modules.inventory.models import (  # noqa: F401
-        InventoryMovement,
-        InventorySku,
-        InventoryStock,
-        ServiceOfferingVersion,
-    )
-    from app.modules.invoices.models import Invoice, InvoiceLineItem  # noqa: F401
-    from app.modules.job_cards.models import (  # noqa: F401
-        JobCard,
-        JobCardConcern,
-        JobCardEvent,
-        JobCardItem,
-    )
-    from app.modules.notifications.models import (  # noqa: F401
-        AnalyticsEvent,
-        DevicePushToken,
-        Notification,
-        OutboxEvent,
-    )
-    from app.modules.payments.models import (  # noqa: F401
-        PartsAdvanceAllocation,
-        Payment,
-        PaymentEvent,
-        Refund,
-    )
-    from app.modules.reviews.models import Review  # noqa: F401
-    from app.modules.slots.models import Holiday, ServiceCalendar, SlotHold  # noqa: F401
-    from app.modules.support.models import SupportTicket  # noqa: F401
-    from app.modules.technicians.models import Technician, TechnicianSkill  # noqa: F401
-    from app.modules.vehicles.models import Vehicle, VehicleServiceLog  # noqa: F401
-    from app.modules.visits.models import (  # noqa: F401
-        TechnicianAssignment,
-        TechnicianLocationPing,
-        Visit,
-    )
+    for name in modules:
+        if name in sys.modules:
+            continue
+        __import__(name)
 
 
 import_phase03_models()

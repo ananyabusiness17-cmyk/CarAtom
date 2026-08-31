@@ -3,6 +3,7 @@ from urllib.parse import urlparse
 from arq.connections import RedisSettings
 from arq.cron import cron
 
+import app.db.models  # noqa: F401 — register ORM models before invoice tasks
 from app.config import settings
 from app.modules.invoices.tasks import generate_invoice_pdf
 from app.worker.jobs import (
