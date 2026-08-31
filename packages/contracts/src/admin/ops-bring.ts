@@ -16,7 +16,7 @@ export const KitLineSchema = z.object({
 export type KitLine = z.infer<typeof KitLineSchema>;
 
 export const VisitKitSchema = z.object({
-  visit_id: z.string().optional(),
+  visit_id: z.string().nullable().optional(),
   job_card_id: z.string(),
   van_code: z.string().nullable().optional(),
   lines: z.array(KitLineSchema),

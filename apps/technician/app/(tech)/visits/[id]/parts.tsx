@@ -82,7 +82,7 @@ export default function PartsScreen() {
                 >
                   <Text style={styles.label}>{line.label}</Text>
                   <Text style={styles.meta}>
-                    {line.sku_code} · van {line.van_qty ?? 0} · {line.availability.replaceAll('_', ' ').toLowerCase()}
+                    {line.sku_code} · van {line.van_qty ?? 0} · {line.availability.replace(/_/g, ' ').toLowerCase()}
                   </Text>
                 </Pressable>
               ))}

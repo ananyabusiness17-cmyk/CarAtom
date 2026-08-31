@@ -1,6 +1,6 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, TextInput, View } from 'react-native';
 
 import { InlineBanner } from '../../../../src/components/InlineBanner';
 import { OfflineBanner } from '../../../../src/components/OfflineBanner';
@@ -22,13 +22,16 @@ export default function QcScreen() {
   const mutations = useVisitMutations(id ?? '');
   const [items, setItems] = useState(DEFAULT_ITEMS);
   const [rework, setRework] = useState(false);
+  const [odometer, setOdometer] = useState('');
   const allPass = items.every((item) => item.passed);
 
   if (!id) return null;
 
   async function complete() {
+    const km = odometer.trim() ? Number(odometer) : undefined;
+    if (km !== undefined && !(km > 0)) return;
     await mutations.qc(items, true);
-    await mutations.complete();
+    await mutations.complete(km ? { odometer_km: km } : {});
     router.replace('/(tech)/(tabs)/today');
   }
 
@@ -58,6 +61,15 @@ export default function QcScreen() {
           />
         ) : null}
         {mutations.error ? <InlineBanner message={mutations.error} /> : null}
+        <TextInput
+          value={odometer}
+          onChangeText={setOdometer}
+          keyboardType="number-pad"
+          placeholder="Odometer km (optional)"
+          placeholderTextColor={colors.textMuted}
+          style={styles.input}
+          accessibilityLabel="Odometer in kilometres"
+        />
         <PrimaryButton
           label="Mark visit complete"
           disabled={!allPass}
@@ -71,4 +83,13 @@ export default function QcScreen() {
 
 const styles = StyleSheet.create({
   flex: { flex: 1, backgroundColor: colors.canvas },
+  input: {
+    minHeight: 44,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    backgroundColor: colors.surface,
+    color: colors.text,
+  },
 });

@@ -1,4 +1,5 @@
 import { ApiError } from '@caratom/api-client';
+import { useQuery } from '@tanstack/react-query';
 import * as Linking from 'expo-linking';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
@@ -89,6 +90,7 @@ export default function ProfileScreen() {
               accessibilityLabel="Full name"
             />
             <PrimaryButton label="Save name" onPress={() => void saveName()} disabled={busy} />
+            <GarageHistory />
             <HubRow label="Your orders" onPress={() => router.push('/(customer)/(tabs)/orders')} />
             <HubRow label="Notifications" onPress={() => router.push('/notifications')} />
             <HubRow label="Addresses" onPress={() => router.push('/addresses')} />
@@ -122,6 +124,44 @@ export default function ProfileScreen() {
         )}
       </KeyboardAvoidingView>
     </SafeAreaView>
+  );
+}
+
+}
+
+function GarageHistory() {
+  const vehicles = useQuery({
+    queryKey: ['me', 'vehicles'],
+    queryFn: () => apiClient.listVehicles(),
+  });
+  const firstId = vehicles.data?.items[0]?.id;
+  const history = useQuery({
+    queryKey: ['me', 'vehicle-history', firstId],
+    queryFn: () => apiClient.getVehicleHistory(firstId!),
+    enabled: Boolean(firstId),
+  });
+  if (vehicles.isLoading) {
+    return <Text style={styles.meta}>Loading garage…</Text>;
+  }
+  if (!vehicles.data?.items.length) {
+    return <Text style={styles.meta}>No saved vehicles yet.</Text>;
+  }
+  return (
+    <>
+      <Text style={styles.section}>Garage</Text>
+      {vehicles.data.items.map((vehicle) => (
+        <Text key={vehicle.id} style={styles.body}>
+          {vehicle.make} {vehicle.model}
+          {vehicle.mileage_km != null ? ` · ${vehicle.mileage_km} km` : ''}
+        </Text>
+      ))}
+      {(history.data?.items ?? []).slice(0, 3).map((row) => (
+        <Text key={row.id} style={styles.meta}>
+          {row.offering_slug ?? 'Service'}
+          {row.odometer_km != null ? ` · ${row.odometer_km} km` : ''}
+        </Text>
+      ))}
+    </>
   );
 }
 

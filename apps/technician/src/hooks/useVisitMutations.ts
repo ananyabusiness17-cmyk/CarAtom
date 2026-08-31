@@ -50,7 +50,7 @@ export function useVisitMutations(visitId: string) {
     inspectionFindings: (payload: Record<string, unknown>) => run('INSPECTION_FINDINGS', payload),
     parts: (payload: Record<string, unknown>) => run('PARTS', payload),
     qc: (items: QcItem[], passed: boolean) => run('QC', { items, passed }),
-    complete: () => run('COMPLETE', {}),
+    complete: (payload: Record<string, unknown> = {}) => run('COMPLETE', payload),
     exception: (payload: Record<string, unknown>) => run('EXCEPTION', payload),
     scopeProgress: async (line: TechnicianScopeLine) => {
       await enqueue(visitId, 'SCOPE_PROGRESS', { line_id: line.id, status: line.status }, newEventId());

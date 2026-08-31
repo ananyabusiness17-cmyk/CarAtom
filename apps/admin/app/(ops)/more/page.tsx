@@ -4,7 +4,8 @@ import { PageHeader } from '@/components/ui';
 
 const ROWS = [
   { href: '/inventory', label: 'Inventory', note: null },
-  { href: '/people?filter=technicians', label: 'Technician tracking', note: null },
+  { href: '/dispatch', label: 'Dispatch board', note: null },
+  { href: '/closeout', label: 'Closeout queues', note: null },
   { href: '/catalog', label: 'Landing photos / copy', note: 'CMS stub' },
   { href: '/notifications/undelivered', label: 'Undelivered notifications', note: null },
   { href: '/catalog/settings', label: 'Service hours & radius', note: null },

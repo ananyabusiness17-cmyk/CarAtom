@@ -40,7 +40,11 @@ async function replay(entry: OfflineQueueEntry): Promise<void> {
       await technicianApi.qc(visitId, payload as { items: never[]; passed: boolean }, eventId);
       return;
     case 'COMPLETE':
-      await technicianApi.complete(visitId, eventId);
+      await technicianApi.complete(
+        visitId,
+        eventId,
+        payload.odometer_km != null ? { odometer_km: Number(payload.odometer_km) } : undefined,
+      );
       return;
     case 'EXCEPTION':
       await technicianApi.exception(

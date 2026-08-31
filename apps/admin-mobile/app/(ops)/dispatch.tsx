@@ -58,7 +58,9 @@ export default function DispatchScreen() {
     assign.error instanceof ApiError
       ? assign.error.problem?.code === 'TECH_OFF_DUTY'
         ? assign.error.message
-        : assign.error.message
+        : assign.error.problem?.code === 'SCHEDULE_OVERLAP'
+          ? assign.error.message
+          : assign.error.message
       : assign.error instanceof Error
         ? assign.error.message
         : null;
