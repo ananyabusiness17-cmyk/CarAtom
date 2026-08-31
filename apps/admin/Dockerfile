@@ -10,6 +10,7 @@ COPY packages ./packages
 
 RUN pnpm install --frozen-lockfile
 RUN pnpm --filter @caratom/admin build
+RUN mkdir -p /repo/apps/admin/public
 
 FROM node:20.18.0-alpine AS runner
 WORKDIR /app
