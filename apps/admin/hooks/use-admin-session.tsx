@@ -1,6 +1,5 @@
 'use client';
 
-import { ApiError } from '@caratom/api-client';
 import type { MeResponse } from '@caratom/contracts';
 import { useRouter } from 'next/navigation';
 import {
@@ -34,19 +33,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
 
   const loadProfile = useCallback(async () => {
-    try {
-      const me = await apiClient.getMe();
-      setProfile(me);
-      if (me.role !== 'admin') {
-        setProfile(null);
-        router.replace('/login?error=forbidden');
-      }
-    } catch (err) {
+    const me = await apiClient.getMe();
+    if (me.role !== 'admin') {
       setProfile(null);
-      if (err instanceof ApiError && err.status === 403) {
-        router.replace('/login?error=forbidden');
-      }
+      router.replace('/login?error=forbidden');
+      throw new Error('This account is not an admin.');
     }
+    setProfile(me);
+    return me;
   }, [router]);
 
   useEffect(() => {
@@ -57,14 +51,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const e2e = readE2eToken();
       if (e2e) {
         setStoredAccessToken(e2e);
-        if (!cancelled) await loadProfile();
+        try {
+          if (!cancelled) await loadProfile();
+        } catch {
+          /* redirect handled in loadProfile */
+        }
         if (!cancelled) setLoading(false);
         return;
       }
       const { data } = await supabase.auth.getSession();
       setStoredAccessToken(data.session?.access_token ?? null);
       if (data.session?.access_token && !cancelled) {
-        await loadProfile();
+        try {
+          await loadProfile();
+        } catch {
+          /* redirect handled in loadProfile */
+        }
       }
       if (!cancelled) setLoading(false);
     }
@@ -72,8 +74,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     void boot();
     const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
       setStoredAccessToken(session?.access_token ?? null);
-      if (session?.access_token) void loadProfile();
-      else setProfile(null);
+      if (!session?.access_token) {
+        setProfile(null);
+        return;
+      }
+      setLoading(true);
+      void loadProfile()
+        .catch(() => undefined)
+        .finally(() => {
+          if (!cancelled) setLoading(false);
+        });
     });
     return () => {
       cancelled = true;
@@ -94,12 +104,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (error) throw error;
       },
       verifyOtp: async (phone: string, token: string) => {
-        const { error } = await createSupabaseBrowser().auth.verifyOtp({
-          phone,
-          token,
-          type: 'sms',
-        });
-        if (error) throw error;
+        if (!supabaseConfigured) {
+          throw new Error('Supabase is not configured. Add NEXT_PUBLIC_SUPABASE_URL and ANON_KEY.');
+        }
+        setLoading(true);
+        try {
+          const { data, error } = await createSupabaseBrowser().auth.verifyOtp({
+            phone,
+            token,
+            type: 'sms',
+          });
+          if (error) throw error;
+          const access = data.session?.access_token ?? null;
+          setStoredAccessToken(access);
+          if (!access) {
+            throw new Error('Sign-in did not create a session. Try Send code again.');
+          }
+          await loadProfile();
+        } finally {
+          setLoading(false);
+        }
       },
       signOut: async () => {
         await createSupabaseBrowser().auth.signOut();
@@ -107,7 +131,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setProfile(null);
       },
     }),
-    [loading, profile],
+    [loading, profile, loadProfile],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
