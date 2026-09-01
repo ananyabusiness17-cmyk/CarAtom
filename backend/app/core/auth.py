@@ -67,10 +67,11 @@ def decode_access_token(token: str) -> dict[str, Any]:
 
     try:
         public_key = PyJWK.from_dict(jwk).key
+        algorithm = jwk.get("alg") or ("ES256" if jwk.get("kty") == "EC" else "RS256")
         claims = jwt.decode(
             token,
             public_key,
-            algorithms=["RS256"],
+            algorithms=[algorithm, "RS256", "ES256"],
             audience=settings.supabase_jwt_audience,
             issuer=_issuer(),
             options={"require": ["exp", "sub"]},

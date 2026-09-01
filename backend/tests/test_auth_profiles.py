@@ -95,3 +95,43 @@ def test_patch_rejects_too_long_name(client: TestClient) -> None:
         json={"full_name": "x" * 121},
     )
     assert response.status_code == 422
+
+
+def test_me_accepts_es256_supabase_jwt(client: TestClient, monkeypatch) -> None:
+    import json
+    from datetime import UTC, datetime, timedelta
+
+    import jwt
+    from cryptography.hazmat.primitives.asymmetric import ec
+    from jwt.algorithms import ECAlgorithm
+
+    from app.core import auth as auth_module
+
+    private_key = ec.generate_private_key(ec.SECP256R1())
+    jwk = json.loads(ECAlgorithm.to_jwk(private_key.public_key()))
+    jwk["kid"] = "es256-kid"
+    jwk["use"] = "sig"
+    jwk["alg"] = "ES256"
+
+    monkeypatch.setattr(auth_module, "fetch_jwks", lambda *, force=False: [jwk])
+
+    now = datetime.now(UTC)
+    sub = str(uuid4())
+    token = jwt.encode(
+        {
+            "sub": sub,
+            "aud": "authenticated",
+            "iss": "https://example.supabase.co/auth/v1",
+            "exp": now + timedelta(hours=1),
+            "iat": now,
+            "phone": "+918217826798",
+            "phone_verified": True,
+            "role": "authenticated",
+        },
+        private_key,
+        algorithm="ES256",
+        headers={"kid": "es256-kid"},
+    )
+    response = client.get("/v1/me", headers={"Authorization": f"Bearer {token}"})
+    assert response.status_code == 200
+    assert response.json()["id"] == sub
