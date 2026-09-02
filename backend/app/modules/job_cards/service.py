@@ -12,7 +12,7 @@ from app.core.schemas import FlowDecisionSchema
 from app.db.models import Profile, RepairOffering, ServiceAreaRule, ServiceOffering
 from app.modules.addresses.models import Address
 from app.modules.bookings.models import Booking
-from app.modules.estimates.models import Estimate
+from app.modules.estimates.models import Estimate, EstimateAcceptance
 from app.modules.estimates.repository import EstimateRepository
 from app.modules.job_cards import state_machine
 from app.modules.job_cards.models import JobCard
@@ -426,6 +426,28 @@ class JobCardService:
                 "Estimate content does not match.",
                 allowed_actions=["REQUEST_ESTIMATE"],
             )
+        existing_acceptance = self.db.scalar(
+            select(EstimateAcceptance).where(
+                EstimateAcceptance.idempotency_key == idempotency_key
+            )
+        )
+        if existing_acceptance is not None:
+            if existing_acceptance.estimate_id != estimate.id:
+                raise DomainProblem(
+                    409,
+                    "IDEMPOTENCY_CONFLICT",
+                    "Idempotency-Key was reused with a different estimate.",
+                )
+            loaded = self.repo.get(job_card.id)
+            assert loaded is not None
+            return AcceptEstimateResponse(
+                acceptance=AcceptanceOut(
+                    id=existing_acceptance.id,
+                    accepted_at=_aware(existing_acceptance.accepted_at) or datetime.now(UTC),
+                    accepted_total_minor=existing_acceptance.accepted_total_minor,
+                ),
+                flow_decision=to_flow_schema(self._decision(loaded, estimate)),
+            )
         has_repairs = any(item.kind == "REPAIR" for item in job_card.items)
         from app.modules.advisor.repository import AdvisorRepository
 
@@ -465,7 +487,6 @@ class JobCardService:
                 request_id=request_id,
                 payload={"estimate_id": estimate.id},
             )
-            self.db.commit()
             loaded = self.repo.get(job_card.id)
             assert loaded is not None
             return AcceptEstimateResponse(
@@ -476,14 +497,15 @@ class JobCardService:
                 ),
                 flow_decision=to_flow_schema(self._decision(loaded, estimate)),
             )
-        if has_repairs and job_card.status == "REVISED_ESTIMATE_PENDING":
-            if case is None or case.pending_estimate_id != estimate.id:
-                raise DomainProblem(
-                    409,
-                    "ESTIMATE_VERSION_MISMATCH",
-                    "Accept the revised estimate sent during your call.",
-                    allowed_actions=["ACCEPT_REVISED_ESTIMATE"],
-                )
+        pending_revised = (
+            has_repairs
+            and case is not None
+            and case.pending_estimate_id == estimate.id
+            and (
+                job_card.status == "REVISED_ESTIMATE_PENDING"
+                or case.status == "CUSTOMER_CONFIRMATION_DUE"
+            )
+        )
         acceptance = self.estimates.add_acceptance(
             estimate.id,
             job_card.id,
@@ -492,13 +514,19 @@ class JobCardService:
             idempotency_key,
         )
         estimate.status = "ACCEPTED"
-        if has_repairs and job_card.status == "REVISED_ESTIMATE_PENDING":
-            advisor_repo.transition(case, "CONFIRMED")
+        if pending_revised:
+            assert case is not None
+            if case.status != "CONFIRMED":
+                advisor_repo.transition(case, "CONFIRMED")
             case.confirmed_estimate_id = estimate.id
             case.pending_estimate_id = None
             case.customer_response = "ACCEPTED"
-            state_machine.transition(job_card, "SCOPE_CONFIRMED")
-            state_machine.transition(job_card, "READY_FOR_FINALIZATION")
+            if job_card.status == "ADVISOR_IN_PROGRESS":
+                state_machine.transition(job_card, "REVISED_ESTIMATE_PENDING")
+            if job_card.status == "REVISED_ESTIMATE_PENDING":
+                state_machine.transition(job_card, "SCOPE_CONFIRMED")
+            if job_card.status == "SCOPE_CONFIRMED":
+                state_machine.transition(job_card, "READY_FOR_FINALIZATION")
         elif has_repairs:
             state_machine.transition(job_card, "ESTIMATE_ACCEPTED")
             state_machine.transition(job_card, "ADVISOR_REQUIRED")
@@ -516,7 +544,6 @@ class JobCardService:
             request_id=request_id,
             payload={"estimate_id": estimate.id},
         )
-        self.db.commit()
         loaded = self.repo.get(job_card.id)
         assert loaded is not None
         return AcceptEstimateResponse(

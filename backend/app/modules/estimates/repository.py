@@ -74,6 +74,11 @@ class EstimateRepository:
         accepted_total_minor: int,
         idempotency_key: str,
     ) -> EstimateAcceptance:
+        existing = self.db.scalar(
+            select(EstimateAcceptance).where(EstimateAcceptance.idempotency_key == idempotency_key)
+        )
+        if existing is not None:
+            return existing
         row = EstimateAcceptance(
             estimate_id=estimate_id,
             job_card_id=job_card_id,

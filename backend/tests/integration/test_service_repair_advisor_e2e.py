@@ -160,6 +160,39 @@ def test_service_repair_advisor_e2e(client: TestClient) -> None:
     assert booked.json()["booking"]["job_card_ref"].startswith("JC-")
 
 
+def test_accept_revised_while_advisor_in_progress(client: TestClient) -> None:
+    _user_id, headers = _auth()
+    job_id = _create_with_repairs(client, headers)
+    _price_and_accept_v1(client, headers, job_id)
+    client.post(
+        f"/v1/job-cards/{job_id}/advisor-case",
+        headers={**headers, "Idempotency-Key": f"case-{job_id}"},
+    )
+    simulated = client.post(
+        f"/v1/dev/job-cards/{job_id}/simulate-advisor-estimate",
+        headers=headers,
+    )
+    assert simulated.status_code == 200, simulated.text
+    v2 = simulated.json()["estimate"]
+
+    from app.modules.job_cards.models import JobCard
+    from tests.conftest import TestingSessionLocal
+
+    with TestingSessionLocal() as db:
+        job = db.get(JobCard, job_id)
+        assert job is not None
+        job.status = "ADVISOR_IN_PROGRESS"
+        db.commit()
+
+    accepted = client.post(
+        f"/v1/job-cards/{job_id}/estimates/{v2['id']}/accept",
+        headers={**headers, "Idempotency-Key": f"accept-v2-legacy-{job_id}"},
+        json={"expected_total_minor": 684900, "expected_content_hash": v2["content_hash"]},
+    )
+    assert accepted.status_code == 200, accepted.text
+    assert accepted.json()["flow_decision"]["required_next_action"] == "FINALIZE"
+
+
 def test_advisor_deny_loop(client: TestClient) -> None:
     _user_id, headers = _auth()
     job_id = _create_with_repairs(client, headers)
