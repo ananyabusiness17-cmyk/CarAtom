@@ -16,6 +16,7 @@ from app.modules.job_cards.schemas import (
     FinalizationRequest,
     FinalizationResponse,
     JobCardEnvelope,
+    PatchJobCardItemRequest,
     PatchJobCardRequest,
     PriceResponse,
 )
@@ -139,6 +140,20 @@ def add_job_card_item(
         body.quantity,
         user,
         _request_id(request),
+    )
+
+
+@router.patch("/job-cards/{job_card_id}/items/{item_id}", response_model=JobCardEnvelope)
+def patch_job_card_item(
+    job_card_id: str,
+    item_id: str,
+    body: PatchJobCardItemRequest,
+    request: Request,
+    db: Annotated[Session, Depends(get_db)],
+    user: Annotated[CurrentUser | None, Depends(get_optional_user)],
+) -> JobCardEnvelope:
+    return JobCardService(db).set_item_quantity(
+        job_card_id, item_id, body.quantity, user, _request_id(request)
     )
 
 

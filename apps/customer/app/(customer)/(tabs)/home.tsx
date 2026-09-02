@@ -25,7 +25,7 @@ import { apiClient } from '../../../src/lib/api';
 import { presentationForTab } from '../../../src/lib/homeContent';
 import { assertGlossary, type ModeTabId } from '../../../src/lib/modeTabs';
 import { vehicleLabel, pickVehicleDraft } from '../../../src/lib/vehicleDraft';
-import { gprVehicleParams, nextVehicleGate } from '../../../src/lib/presentVehicle';
+import { gprVehicleParams, nextVehicleGate, savedVehicleParams } from '../../../src/lib/presentVehicle';
 import { useJobCardFlowStore } from '../../../src/stores/jobCardFlowStore';
 import { useVehicleDraftStore } from '../../../src/stores/vehicleDraftStore';
 import { colors, layout, radius, shadow, type } from '../../../src/theme/tokens';
@@ -46,7 +46,8 @@ export default function HomeScreen() {
     staleTime: 5 * 60_000,
   });
   const catalog = catalogQuery.data ?? null;
-  const loading = catalogQuery.isLoading;
+  const loading = catalogQuery.isPending || catalogQuery.isFetching;
+  const showCatalogBody = Boolean(catalog) && !catalogQuery.isError;
 
   const refetchCatalog = catalogQuery.refetch;
   const load = useCallback(async () => {
@@ -95,18 +96,9 @@ export default function HomeScreen() {
         kicker={ad.kicker}
         title={ad.title}
         onVehiclePress={() => {
-          if (tab === 'repair') {
-            setFlowKind('gpr');
-            router.push({
-              pathname: '/vehicle/make',
-              params: { offering: 'general-service-health-report', flow: 'service-repair' },
-            });
-            return;
-          }
-          setFlowKind('gs');
           router.push({
             pathname: '/vehicle/make',
-            params: { offering: 'general-service-health-report' },
+            params: savedVehicleParams(),
           });
         }}
         onLocationPress={() => router.push('/addresses')}
@@ -133,7 +125,16 @@ export default function HomeScreen() {
                 <InlineBanner message="Services unavailable in your area" />
               </View>
             ) : null}
-            {!loading && catalog ? (
+            {!loading && !showCatalogBody && !error ? (
+              <View style={styles.pad}>
+                <InlineBanner
+                  message="Could not load services. Check your connection and try again."
+                  actionLabel="Retry"
+                  onAction={() => void load()}
+                />
+              </View>
+            ) : null}
+            {showCatalogBody && catalog ? (
               <ScrollView contentContainerStyle={styles.body} keyboardShouldPersistTaps="handled">
                 {tab !== 'sos' && tab !== 'oneman' ? (
                   <View style={styles.searchRow}>

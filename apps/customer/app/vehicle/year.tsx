@@ -18,7 +18,7 @@ export default function YearScreen() {
   const year = useVehicleDraftStore((s) => s.year) ?? 2019;
   const setYear = useVehicleDraftStore((s) => s.setYear);
   const rail = useFlowRail(4, 5, 3, 6);
-  const params = useLocalSearchParams<{ returnTo?: string }>();
+  const params = useLocalSearchParams<{ returnTo?: string; offering?: string; intent?: string }>();
   const rows: number[][] = [];
   for (let i = 0; i < YEARS.length; i += 3) {
     rows.push(YEARS.slice(i, i + 3));
@@ -48,7 +48,10 @@ export default function YearScreen() {
           if (!useVehicleDraftStore.getState().year) setYear(year);
           router.push({
             pathname: '/vehicle/fuel',
-            params: passAlongParams(rail.flowParam, params.returnTo),
+            params: passAlongParams(
+              { ...rail.flowParam, offering: params.offering, intent: params.intent },
+              params.returnTo,
+            ),
           });
         }}
       />

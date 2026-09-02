@@ -21,4 +21,13 @@ if (!src.includes('Select repairs / replacements') && !src.includes('presentatio
   throw new Error('Home repair CTA copy must stay Select repairs / replacements');
 }
 
+const choices = readFileSync(join(here, '../components/home/RepairCarChoices.tsx'), 'utf8');
+if (!choices.includes("flexDirection: 'row'") || !choices.includes('Present car') || !choices.includes('New car')) {
+  throw new Error('Present car and New car must sit side by side');
+}
+
+if (!src.includes('savedVehicleParams')) {
+  throw new Error('Home header car must save the vehicle and return home');
+}
+
 console.log('home repair CTA OK');

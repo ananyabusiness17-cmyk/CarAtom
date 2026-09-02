@@ -7,12 +7,14 @@ export function ChoiceRow({
   caption,
   selected,
   disabled,
+  compact,
   onPress,
 }: {
   label: string;
   caption?: string;
   selected?: boolean;
   disabled?: boolean;
+  compact?: boolean;
   onPress: () => void;
 }) {
   return (
@@ -24,13 +26,20 @@ export function ChoiceRow({
       onPress={onPress}
       style={({ pressed }) => [
         styles.row,
+        compact ? styles.compact : null,
         selected ? styles.selected : null,
         pressed && !disabled ? styles.pressed : null,
         disabled ? styles.disabled : null,
       ]}
     >
-      <Text style={styles.label}>{label}</Text>
-      {caption ? <Text style={styles.caption}>{caption}</Text> : null}
+      <Text style={styles.label} numberOfLines={compact ? 1 : undefined}>
+        {label}
+      </Text>
+      {caption ? (
+        <Text style={styles.caption} numberOfLines={compact ? 2 : undefined}>
+          {caption}
+        </Text>
+      ) : null}
     </Pressable>
   );
 }
@@ -52,6 +61,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.selectionBg,
     borderWidth: 1.5,
   },
+  compact: { flex: 1, minHeight: 72, justifyContent: 'flex-start' },
   pressed: { opacity: 0.88 },
   disabled: { opacity: 0.45 },
   label: { ...type.bodyMedium, color: colors.textStrong },

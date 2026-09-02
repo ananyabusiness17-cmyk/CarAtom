@@ -57,3 +57,8 @@ export function gprVehicleParams(returnTo = '/job-card/repairs-cart'): Record<st
 export function gsVehicleParams(offeringSlug: string): Record<string, string> {
   return { offering: offeringSlug };
 }
+
+/** Home header “Your car” — save the draft and return home, do not open a job. */
+export function savedVehicleParams(): Record<string, string> {
+  return { returnTo: '/(customer)/(tabs)/home', intent: 'save' };
+}

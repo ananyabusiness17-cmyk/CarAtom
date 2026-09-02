@@ -1,61 +1,74 @@
-import { Pressable, StyleSheet, Text } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { QtyStepper } from './QtyStepper';
 import { formatInr } from '../lib/formatMoney';
 import { colors, radius, type } from '../theme/tokens';
 
 export function AddonTile({
   name,
   priceMinor,
-  selected,
-  denyMode,
-  onPress,
-  onRemove,
+  quantity,
+  plusDisabled,
+  minusDisabled,
+  onPlus,
+  onMinus,
 }: {
   name: string;
   priceMinor: number;
-  selected: boolean;
-  denyMode?: boolean;
-  onPress: () => void;
-  onRemove?: () => void;
+  quantity: number;
+  plusDisabled?: boolean;
+  minusDisabled?: boolean;
+  onPlus: () => void;
+  onMinus: () => void;
 }) {
+  const inCart = quantity > 0;
+  const lineMinor = priceMinor * Math.max(quantity, 1);
+
   return (
-    <Pressable
-      onPress={onPress}
-      accessibilityRole="button"
-      accessibilityLabel={`${name}, ${formatInr(priceMinor)}${selected ? ', selected' : ''}`}
-      accessibilityState={{ selected }}
-      style={[styles.tile, selected ? styles.selected : null]}
-    >
+    <View style={[styles.tile, inCart ? styles.selected : null]}>
       <Text style={styles.name} numberOfLines={2}>
         {name}
       </Text>
-      <Text style={styles.price}>{formatInr(priceMinor)}</Text>
-      {denyMode && selected ? (
-        <Pressable
-          onPress={onRemove}
-          hitSlop={8}
-          accessibilityRole="button"
-          accessibilityLabel={`Remove ${name}`}
-        >
-          <Text style={styles.remove}>Remove</Text>
-        </Pressable>
+      <Text
+        style={styles.price}
+        accessibilityLabel={inCart ? `${formatInr(lineMinor)} for ${quantity}` : formatInr(priceMinor)}
+      >
+        {formatInr(inCart ? lineMinor : priceMinor)}
+      </Text>
+      {inCart ? (
+        <QtyStepper
+          label={name}
+          quantity={quantity}
+          minusDisabled={minusDisabled}
+          plusDisabled={plusDisabled}
+          onMinus={onMinus}
+          onPlus={onPlus}
+        />
       ) : (
-        <Text style={styles.mark}>{selected ? '✓' : '+'}</Text>
+        <Pressable
+          onPress={onPlus}
+          accessibilityRole="button"
+          accessibilityLabel={`Add ${name}`}
+          hitSlop={4}
+          style={({ pressed }) => [styles.addHit, pressed ? styles.pressed : null]}
+        >
+          <Text style={styles.addLabel}>ADD</Text>
+        </Pressable>
       )}
-    </Pressable>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   tile: {
     flex: 1,
-    minHeight: 108,
+    minHeight: 124,
     padding: 12,
     borderRadius: radius.card,
     borderWidth: 1,
     borderColor: colors.border,
     backgroundColor: colors.surface,
-    gap: 6,
+    gap: 8,
   },
   selected: {
     borderColor: colors.selectionBorder,
@@ -64,6 +77,18 @@ const styles = StyleSheet.create({
   },
   name: { ...type.bodyMedium, color: colors.textStrong },
   price: { ...type.caption, color: colors.textMuted },
-  mark: { ...type.label, color: colors.brandStrong, marginTop: 'auto' },
-  remove: { ...type.label, color: colors.warning, marginTop: 'auto' },
+  addHit: {
+    alignSelf: 'flex-start',
+    minHeight: 44,
+    minWidth: 64,
+    paddingHorizontal: 12,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: colors.brandStrong,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  pressed: { opacity: 0.88 },
+  addLabel: { ...type.label, color: colors.brandStrong, fontWeight: '700' },
 });
+

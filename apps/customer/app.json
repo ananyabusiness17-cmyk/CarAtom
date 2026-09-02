@@ -1,13 +1,26 @@
 {
   "expo": {
     "name": "CARATOM Customer",
-    "slug": "caratom-customer",
+    "slug": "caratom",
+    "owner": "caratomz",
     "version": "1.0.0",
     "orientation": "portrait",
-    "scheme": ["caratom-customer", "caratom"],
-    "platforms": ["ios", "android"],
+    "icon": "./assets/icon.png",
+    "scheme": [
+      "caratom-customer",
+      "caratom"
+    ],
+    "platforms": [
+      "ios",
+      "android"
+    ],
     "sdkVersion": "52.0.0",
     "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#176B9E"
+    },
     "runtimeVersion": {
       "policy": "appVersion"
     },
@@ -31,15 +44,29 @@
     ],
     "ios": {
       "bundleIdentifier": "in.caratom.customer",
-      "associatedDomains": ["applinks:staging.caratom.app"],
+      "buildNumber": "1",
+      "supportsTablet": false,
+      "associatedDomains": [
+        "applinks:staging.caratom.app"
+      ],
+      "config": {
+        "usesNonExemptEncryption": false
+      },
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "CARATOM uses your location to send roadside help to where you are."
       }
     },
     "android": {
       "package": "in.caratom.customer",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#176B9E"
+      },
       "usesCleartextTraffic": true,
-      "permissions": ["ACCESS_COARSE_LOCATION", "ACCESS_FINE_LOCATION"],
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION"
+      ],
       "intentFilters": [
         {
           "action": "VIEW",
@@ -51,9 +78,20 @@
               "pathPrefix": "/l"
             }
           ],
-          "category": ["BROWSABLE", "DEFAULT"]
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
         }
       ]
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "9f092618-f894-4f92-b24d-00b050cf00be"
+      }
     }
   }
 }

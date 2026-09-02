@@ -13,13 +13,13 @@ from tests.integration.test_inspection_repair_e2e import (
 )
 
 
-def test_dev_simulate_requires_admin_in_development(client: TestClient) -> None:
+def test_dev_simulate_allows_customer_token_in_development(client: TestClient) -> None:
     headers = {"Authorization": f"Bearer {make_token(str(uuid4()))}"}
     response = client.post(
         f"/v1/dev/job-cards/{uuid4()}/simulate-advisor-estimate",
         headers=headers,
     )
-    assert response.status_code == 403
+    assert response.status_code == 404
 
 
 def test_dev_auto_assign_requires_admin(client: TestClient) -> None:

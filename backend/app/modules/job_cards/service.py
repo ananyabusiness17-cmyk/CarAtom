@@ -168,6 +168,7 @@ class JobCardService:
                     label=item.label_snapshot,
                     unit_price_minor=item.unit_price_minor,
                     currency=item.currency,
+                    quantity=item.quantity,
                     repair_offering_slug=(
                         self.db.get(RepairOffering, item.repair_offering_id).slug
                         if item.repair_offering_id
@@ -657,8 +658,23 @@ class JobCardService:
             None,
         )
         if existing is not None:
-            raise DomainProblem(
-                409, "INVALID_STATE_TRANSITION", "Repair is already on this job card."
+            existing.quantity = min(10, existing.quantity + 1)
+            job_card.updated_at = datetime.now(UTC)
+            if job_card.status == "ESTIMATE_READY":
+                state_machine.transition(job_card, "EDITABLE")
+            self.repo.add_event(
+                job_card.id,
+                "REPAIR_ITEM_ADDED",
+                actor_profile_id=user.id if user else None,
+                request_id=request_id,
+                payload={"slug": slug, "quantity": existing.quantity},
+            )
+            self.db.commit()
+            loaded = self.repo.get(job_card.id)
+            assert loaded is not None
+            return JobCardEnvelope(
+                job_card=self.to_job_card_out(loaded),
+                flow_decision=to_flow_schema(self._decision(loaded)),
             )
         if job_card.status == "ESTIMATE_READY":
             state_machine.transition(job_card, "EDITABLE")
@@ -672,6 +688,46 @@ class JobCardService:
             actor_profile_id=user.id if user else None,
             request_id=request_id,
             payload={"slug": slug},
+        )
+        self.db.commit()
+        loaded = self.repo.get(job_card.id)
+        assert loaded is not None
+        return JobCardEnvelope(
+            job_card=self.to_job_card_out(loaded),
+            flow_decision=to_flow_schema(self._decision(loaded)),
+        )
+
+    def set_item_quantity(
+        self,
+        job_card_id: str,
+        item_id: str,
+        quantity: int,
+        user: CurrentUser | None,
+        request_id: str | None,
+    ) -> JobCardEnvelope:
+        job_card = self.get_accessible(job_card_id, user)
+        if job_card.status not in {"EDITABLE", "ESTIMATE_READY", "PRICING_FAILED"}:
+            raise DomainProblem(
+                409,
+                "INVALID_STATE_TRANSITION",
+                "Repair items can only be changed while the job card is editable.",
+                allowed_actions=["EDIT_JOB_CARD"],
+            )
+        item = next((row for row in job_card.items if row.id == item_id), None)
+        if item is None:
+            raise DomainProblem(404, "NOT_FOUND", "Not found.")
+        if item.kind != "REPAIR":
+            raise DomainProblem(409, "INVALID_STATE_TRANSITION", "Service line quantity cannot change.")
+        item.quantity = quantity
+        if job_card.status == "ESTIMATE_READY":
+            state_machine.transition(job_card, "EDITABLE")
+        job_card.updated_at = datetime.now(UTC)
+        self.repo.add_event(
+            job_card.id,
+            "REPAIR_ITEM_ADDED",
+            actor_profile_id=user.id if user else None,
+            request_id=request_id,
+            payload={"item_id": item_id, "quantity": quantity},
         )
         self.db.commit()
         loaded = self.repo.get(job_card.id)

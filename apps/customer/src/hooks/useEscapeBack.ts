@@ -1,23 +1,22 @@
-import { useFocusEffect, useNavigation, useRouter } from 'expo-router';
+import { useFocusEffect } from 'expo-router';
 import { useCallback } from 'react';
 import { BackHandler, Platform } from 'react-native';
 
-import { CUSTOMER_HOME, leaveStack } from '../lib/stackBack';
+import { CUSTOMER_HOME } from '../lib/stackBack';
+import { useFlowBack } from './useFlowBack';
 
-/** Android hardware back: pop nested, then parent, then home. iOS uses the header back button. */
+/** Android hardware back uses the same path as the header chevron. */
 export function useEscapeBack(fallback = CUSTOMER_HOME): void {
-  const navigation = useNavigation();
-  const router = useRouter();
+  const onBack = useFlowBack(fallback);
 
   useFocusEffect(
     useCallback(() => {
       if (Platform.OS !== 'android') return undefined;
-      const onBack = () => {
-        leaveStack(navigation, (href) => router.replace(href), fallback);
+      const sub = BackHandler.addEventListener('hardwareBackPress', () => {
+        onBack();
         return true;
-      };
-      const sub = BackHandler.addEventListener('hardwareBackPress', onBack);
+      });
       return () => sub.remove();
-    }, [fallback, navigation, router]),
+    }, [onBack]),
   );
 }

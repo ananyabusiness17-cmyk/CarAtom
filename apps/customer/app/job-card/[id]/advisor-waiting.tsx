@@ -54,6 +54,12 @@ export default function AdvisorWaitingScreen() {
       void caseQuery.refetch();
     },
     onError: (err) => {
+      if (err instanceof ApiError && err.status === 404) {
+        setSimError(
+          'Dev simulate is off on this server. Set ENABLE_DEV_SIMULATE=true on Railway, redeploy the API, then reload the app.',
+        );
+        return;
+      }
       setSimError(err instanceof ApiError ? err.message : 'Could not simulate the advisor estimate.');
     },
   });

@@ -9,6 +9,7 @@ export async function createFlowJobCard(opts: {
   symptoms?: string;
   photoAssetIds?: string[];
   repairSlugs?: string[];
+  repairQuantities?: Record<string, number>;
 }): Promise<string> {
   if (!isDraftComplete(opts.vehicle)) {
     throw new Error('Select make, model, year, and fuel first.');
@@ -26,11 +27,16 @@ export async function createFlowJobCard(opts: {
     photo_asset_ids: opts.kind === 'ir' ? opts.photoAssetIds : undefined,
   });
   if (opts.kind === 'gpr') {
-    for (const slug of opts.repairSlugs ?? []) {
+    const lines = opts.repairQuantities
+      ? Object.entries(opts.repairQuantities)
+      : (opts.repairSlugs ?? []).map((slug) => [slug, 1] as const);
+    for (const [slug, quantity] of lines) {
+      const qty = Number(quantity);
+      if (!slug || qty < 1) continue;
       await apiClient.addJobCardItem(created.job_card.id, {
         kind: 'REPAIR',
         repair_offering_slug: slug,
-        quantity: 1,
+        quantity: Math.min(10, Math.max(1, Math.trunc(qty))),
       });
     }
   }

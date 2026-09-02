@@ -61,6 +61,10 @@ class AddJobCardItemRequest(BaseModel):
     quantity: int = Field(1, ge=1, le=10)
 
 
+class PatchJobCardItemRequest(BaseModel):
+    quantity: int = Field(..., ge=1, le=10)
+
+
 class PatchJobCardRequest(BaseModel):
     concerns: list[ConcernIn]
 
@@ -72,6 +76,7 @@ class JobCardItemOut(BaseModel):
     unit_price_minor: int
     currency: str = "INR"
     repair_offering_slug: str | None = None
+    quantity: int = 1
 
 
 class JobCardConcernOut(BaseModel):

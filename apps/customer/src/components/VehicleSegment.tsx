@@ -1,17 +1,25 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { colors, radius, type } from '../theme/tokens';
+import { passAlongParams } from '../lib/vehicleNav';
 
 const SEGMENTS = [
-  { key: 'make', label: 'Make', href: '/vehicle/make' },
-  { key: 'model', label: 'Model', href: '/vehicle/model' },
-  { key: 'year', label: 'Year', href: '/vehicle/year' },
-  { key: 'fuel', label: 'Fuel', href: '/vehicle/fuel' },
+  { key: 'make', label: 'Make', pathname: '/vehicle/make' as const },
+  { key: 'model', label: 'Model', pathname: '/vehicle/model' as const },
+  { key: 'year', label: 'Year', pathname: '/vehicle/year' as const },
+  { key: 'fuel', label: 'Fuel', pathname: '/vehicle/fuel' as const },
 ] as const;
 
 export function VehicleSegment({ active }: { active: (typeof SEGMENTS)[number]['key'] }) {
   const router = useRouter();
+  const params = useLocalSearchParams<{
+    offering?: string;
+    returnTo?: string;
+    flow?: string;
+    intent?: string;
+  }>();
+
   return (
     <View style={styles.row} accessibilityRole="tablist">
       {SEGMENTS.map((segment) => {
@@ -22,7 +30,19 @@ export function VehicleSegment({ active }: { active: (typeof SEGMENTS)[number]['
             accessibilityRole="tab"
             accessibilityState={{ selected: isActive }}
             accessibilityLabel={segment.label}
-            onPress={() => router.push(segment.href)}
+            onPress={() =>
+              router.push({
+                pathname: segment.pathname,
+                params: passAlongParams(
+                  {
+                    offering: params.offering,
+                    flow: params.flow,
+                    intent: params.intent,
+                  },
+                  params.returnTo,
+                ),
+              })
+            }
             style={[styles.chip, isActive ? styles.active : null]}
           >
             <Text style={[styles.label, isActive ? styles.activeLabel : null]}>{segment.label}</Text>

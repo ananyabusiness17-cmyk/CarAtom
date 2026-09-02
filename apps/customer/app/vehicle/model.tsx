@@ -21,7 +21,7 @@ export default function ModelScreen() {
   const selected = useVehicleDraftStore((s) => s.model) ?? 'City';
   const setModel = useVehicleDraftStore((s) => s.setModel);
   const rail = useFlowRail(3, 4, 3, 5);
-  const params = useLocalSearchParams<{ returnTo?: string }>();
+  const params = useLocalSearchParams<{ returnTo?: string; offering?: string; intent?: string }>();
   const models = MODELS_BY_MAKE[makeId] ?? MODELS_BY_MAKE.honda;
 
   const rows: (typeof models)[] = [];
@@ -61,7 +61,10 @@ export default function ModelScreen() {
           if (!useVehicleDraftStore.getState().model) setModel(selected);
           router.push({
             pathname: '/vehicle/year',
-            params: passAlongParams(rail.flowParam, params.returnTo),
+            params: passAlongParams(
+              { ...rail.flowParam, offering: params.offering, intent: params.intent },
+              params.returnTo,
+            ),
           });
         }}
       />

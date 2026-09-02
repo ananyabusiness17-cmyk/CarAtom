@@ -2,6 +2,10 @@ import { Stack } from 'expo-router';
 
 import { flowStackScreenOptions } from '../../src/components/flowStackOptions';
 
+export const unstable_settings = {
+  initialRouteName: 'make',
+};
+
 export default function VehicleLayout() {
   return (
     <Stack screenOptions={flowStackScreenOptions}>

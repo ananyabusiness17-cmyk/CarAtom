@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from app.common.errors import DomainProblem
 from app.core.deps import CurrentUser, get_optional_user, require_user
-from app.core.dev_guard import require_dev_admin, require_dev_environment
+from app.core.dev_guard import dev_simulate_actor, require_dev_environment
 from app.db.session import get_db
 from app.modules.admin.estimate_publish import CANNED_REVISION_LINES, EstimatePublishService
 from app.modules.advisor.repository import AdvisorRepository
@@ -28,9 +28,10 @@ def simulate_advisor_estimate(
     db: Annotated[Session, Depends(get_db)],
     user: Annotated[CurrentUser | None, Depends(get_optional_user)],
 ) -> AdminPublishEstimateResponse:
-    admin = require_dev_admin(user)
+    require_dev_environment()
     job_cards = JobCardService(db)
-    job = job_cards.get_accessible(job_card_id, admin)
+    job = job_cards.get_accessible(job_card_id, user)
+    actor = dev_simulate_actor(db)
     case = AdvisorRepository(db).get_by_job_card_id(job.id)
     if case is None:
         raise DomainProblem(
@@ -46,7 +47,7 @@ def simulate_advisor_estimate(
         revision_notes_customer_safe="Brake pads upgraded; fluid flush added on call.",
     )
     return EstimatePublishService(db).publish(
-        job_card_id, body, admin, getattr(request.state, "request_id", None)
+        job_card_id, body, actor, getattr(request.state, "request_id", None)
     )
 
 

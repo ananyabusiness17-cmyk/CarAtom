@@ -242,13 +242,13 @@
     </div>
     <p class="web-note">
       <strong>Admin web</strong> is the browser, not Expo Go:
-      <code data-url="3000">http://192.168.0.2:3000</code>
+      <code data-url="3000">http://192.168.0.33:3000</code>
       — inventory, catalog, people, payments, on-behalf booking, job editor, mark parts ready, overrides, audit.
       Phone apps: customer 8081, technician 8082, admin-mobile 8083.
     </p>
     <div class="host-row">
       <label for="lan-host">This PC’s Wi-Fi IP</label>
-      <input id="lan-host" type="text" spellcheck="false" autocomplete="off" value="192.168.0.2" />
+        <input id="lan-host" type="text" spellcheck="false" autocomplete="off" value="192.168.0.33" />
     </div>
     <div class="grid">
       <div class="card live">
@@ -264,14 +264,14 @@
           <span class="dot done"></span><span class="dot done"></span><span class="dot on"></span>
         </div>
         <div class="qr-wrap" id="qr-8081"></div>
-        <code data-url="8081">exp://192.168.0.2:8081</code>
+        <code data-url="8081">exp://192.168.0.33:8081</code>
       </div>
       <div class="card live">
         <span class="chip" data-status="8082">Technician · 8082</span>
         <div class="name">Technician</div>
         <p class="blurb">Jobs / Map / Me. Record real inspection findings and camera evidence. Parts stay empty until you add them. SKU receive is admin web.</p>
         <div class="qr-wrap" id="qr-8082"></div>
-        <code data-url="8082">exp://192.168.0.2:8082</code>
+        <code data-url="8082">exp://192.168.0.33:8082</code>
       </div>
       <div class="card live">
         <span class="chip warn" data-status="8083">Admin mobile · 8083</span>
@@ -280,13 +280,13 @@
           Advisor inbox, board, dispatch, override. Estimate editor seeds from the live job, not demo lines. Dense ops stay on admin web.
         </p>
         <div class="qr-wrap" id="qr-8083"></div>
-        <code data-url="8083">exp://192.168.0.2:8083</code>
+        <code data-url="8083">exp://192.168.0.33:8083</code>
       </div>
     </div>
     <script src="expo-go-qrcode.min.js"></script>
     <script>
       (function () {
-        var DEFAULT_HOST = "192.168.0.2";
+        var DEFAULT_HOST = "192.168.0.33";
         var PORTS = [8081, 8082, 8083];
         var input = document.getElementById("lan-host");
 

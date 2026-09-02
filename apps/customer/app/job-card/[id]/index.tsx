@@ -105,6 +105,10 @@ export default function JobCardScreen() {
   });
 
   const items = jobCardQuery.data?.job_card.items ?? [];
+  const cartTotalMinor = items.reduce(
+    (sum, item) => sum + item.unit_price_minor * (item.quantity ?? 1),
+    0,
+  );
   const ctx = jobCardQuery.data?.job_card.vehicle_context;
   const summary = ctx
     ? `${ctx.make} ${ctx.model} ${ctx.year} · ${ctx.fuel_type === 'PETROL' ? 'Petrol' : ctx.fuel_type}`
@@ -134,20 +138,36 @@ export default function JobCardScreen() {
             accessibilityLabel={repairs ? 'Concerns' : "What's wrong with the car?"}
           />
         </View>
-        {items.map((item) => (
-          <View key={item.id} style={styles.line}>
-            <Text style={styles.lineLabel} numberOfLines={2}>
-              {item.label}
-            </Text>
+        {items.map((item) => {
+          const qty = item.quantity ?? 1;
+          const lineMinor = item.unit_price_minor * qty;
+          return (
+            <View key={item.id} style={styles.line}>
+              <Text style={styles.lineLabel} numberOfLines={2}>
+                {qty > 1 ? `${item.label} ×${qty}` : item.label}
+              </Text>
+              <Text
+                style={styles.price}
+                accessibilityRole="text"
+                accessibilityLabel={`Amount ${formatInr(lineMinor)}`}
+              >
+                {formatInr(lineMinor)}
+              </Text>
+            </View>
+          );
+        })}
+        {items.length > 0 ? (
+          <View style={[styles.line, styles.total]}>
+            <Text style={styles.totalLabel}>Estimated total</Text>
             <Text
-              style={styles.price}
+              style={styles.totalValue}
               accessibilityRole="text"
-              accessibilityLabel={`Amount ${formatInr(item.unit_price_minor)}`}
+              accessibilityLabel={`Total ${formatInr(cartTotalMinor)}`}
             >
-              {formatInr(item.unit_price_minor)}
+              {formatInr(cartTotalMinor)}
             </Text>
           </View>
-        ))}
+        ) : null}
         {repairs ? null : <Text style={styles.note}>No repair add-ons on this flow.</Text>}
       </ScrollView>
       <PrimaryButton
@@ -191,5 +211,8 @@ const styles = StyleSheet.create({
   },
   lineLabel: { ...type.body, color: colors.textStrong, flex: 1, paddingRight: 12 },
   price: { ...type.bodyMedium, color: colors.textStrong, fontWeight: '700' },
+  total: { borderTopWidth: 1, borderTopColor: colors.border, marginTop: 4, paddingTop: 14 },
+  totalLabel: { ...type.bodyMedium, color: colors.textStrong },
+  totalValue: { ...type.price, color: colors.textStrong },
   note: { ...type.caption, color: colors.textMuted },
 });

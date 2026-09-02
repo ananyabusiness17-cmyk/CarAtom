@@ -18,8 +18,10 @@ import { useRepairOfferings } from '../hooks/useRepairOfferings';
 import { track } from '../lib/analytics';
 import { apiClient } from '../lib/api';
 import { createFlowJobCard } from '../lib/createFlowJobCard';
+import { formatInr } from '../lib/formatMoney';
 import { gprVehicleParams, nextVehicleGate } from '../lib/presentVehicle';
 import { pickVehicleDraft, vehicleSummaryLine } from '../lib/vehicleDraft';
+import { CART_QTY_MAX, totalCartQty } from '../stores/repairCartLogic';
 import { useJobCardFlowStore } from '../stores/jobCardFlowStore';
 import { useRepairCartStore } from '../stores/repairCartStore';
 import { useVehicleDraftStore } from '../stores/vehicleDraftStore';
@@ -36,9 +38,10 @@ export function RepairsCartScreen({
   const queryClient = useQueryClient();
   const denyMode = mode === 'deny';
   const offerings = useRepairOfferings();
-  const selectedSlugs = useRepairCartStore((s) => s.selectedSlugs);
-  const toggle = useRepairCartStore((s) => s.toggle);
-  const setSelected = useRepairCartStore((s) => s.setSelected);
+  const quantities = useRepairCartStore((s) => s.quantities);
+  const increment = useRepairCartStore((s) => s.increment);
+  const decrement = useRepairCartStore((s) => s.decrement);
+  const setQuantities = useRepairCartStore((s) => s.setQuantities);
   const setFlowKind = useJobCardFlowStore((s) => s.setFlowKind);
   const setJobCard = useJobCardFlowStore((s) => s.setJobCard);
   const offeringSlug = useJobCardFlowStore((s) => s.offeringSlug);
@@ -59,16 +62,28 @@ export function RepairsCartScreen({
 
   useEffect(() => {
     if (!jobCardId || !jobQuery.data) return;
-    const slugs = jobQuery.data.job_card.items
-      .filter((item) => item.kind === 'REPAIR' && item.repair_offering_slug)
-      .map((item) => item.repair_offering_slug as string);
-    setSelected(slugs);
-  }, [jobCardId, jobQuery.data, setSelected]);
+    const next: Record<string, number> = {};
+    for (const item of jobQuery.data.job_card.items) {
+      if (item.kind !== 'REPAIR' || !item.repair_offering_slug) continue;
+      next[item.repair_offering_slug] = item.quantity ?? 1;
+    }
+    setQuantities(next);
+  }, [jobCardId, jobQuery.data, setQuantities]);
 
   const items = useMemo(() => offerings.data?.items ?? [], [offerings.data?.items]);
-  const selectedItems = items.filter((item) => selectedSlugs.includes(item.slug));
-  const count = selectedSlugs.length;
-  const summary = selectedItems.map((item) => item.name).join(' · ') || 'Nothing selected';
+  const selectedItems = items.filter((item) => (quantities[item.slug] ?? 0) > 0);
+  const count = totalCartQty(quantities);
+  const totalMinor = selectedItems.reduce(
+    (sum, item) => sum + item.display_price.amount_minor * (quantities[item.slug] ?? 0),
+    0,
+  );
+  const summary =
+    selectedItems
+      .map((item) => {
+        const qty = quantities[item.slug] ?? 0;
+        return qty > 1 ? `${item.name} ×${qty}` : item.name;
+      })
+      .join(' · ') || 'Nothing selected';
 
   const rows = useMemo(() => {
     const next: (typeof items)[] = [];
@@ -76,17 +91,32 @@ export function RepairsCartScreen({
     return next;
   }, [items]);
 
-  const removeItem = useMutation({
-    mutationFn: async (slug: string) => {
-      if (!jobCardId || !jobQuery.data) {
-        toggle(slug);
+  const adjustItem = useMutation({
+    mutationFn: async ({ slug, delta }: { slug: string; delta: 1 | -1 }) => {
+      if (!jobCardId) {
+        if (delta > 0) increment(slug);
+        else decrement(slug);
         return;
       }
-      const match = jobQuery.data.job_card.items.find((item) => item.repair_offering_slug === slug);
-      if (match) {
-        await apiClient.deleteJobCardItem(jobCardId, match.id);
+      const envelope = jobQuery.data ?? (await apiClient.getJobCard(jobCardId));
+      const match = envelope.job_card.items.find((item) => item.repair_offering_slug === slug);
+      const current = match?.quantity ?? quantities[slug] ?? 0;
+      if (delta > 0) {
+        await apiClient.addJobCardItem(jobCardId, {
+          kind: 'REPAIR',
+          repair_offering_slug: slug,
+          quantity: 1,
+        });
+        increment(slug);
+        return;
       }
-      toggle(slug);
+      if (!match || current <= 1) {
+        if (match) await apiClient.deleteJobCardItem(jobCardId, match.id);
+        decrement(slug);
+        return;
+      }
+      await apiClient.patchJobCardItem(jobCardId, match.id, { quantity: current - 1 });
+      decrement(slug);
     },
     onSuccess: async () => {
       if (jobCardId) await queryClient.invalidateQueries({ queryKey: queryKeys.jobCard(jobCardId) });
@@ -142,7 +172,7 @@ export function RepairsCartScreen({
         kind: 'gpr',
         offeringSlug: offeringSlug || 'general-service-health-report',
         vehicle,
-        repairSlugs: selectedSlugs,
+        repairQuantities: useRepairCartStore.getState().quantities,
       });
       useRepairCartStore.getState().clear();
       setJobCard(jobCardId, offeringSlug || 'general-service-health-report');
@@ -186,39 +216,23 @@ export function RepairsCartScreen({
         {rows.map((row) => (
           <View key={row.map((item) => item.slug).join('-')} style={styles.row}>
             {row.map((item) => {
-              const selected = selectedSlugs.includes(item.slug);
+              const quantity = quantities[item.slug] ?? 0;
               return (
                 <AddonTile
                   key={item.slug}
                   name={item.name}
                   priceMinor={item.display_price.amount_minor}
-                  selected={selected}
-                  denyMode={denyMode}
-                  onPress={() => {
-                    track('repair_item_toggled', { slug: item.slug });
-                    if (denyMode && selected) {
-                      void removeItem.mutate(item.slug);
-                      return;
-                    }
-                    if (denyMode && jobCardId && !selected) {
-                      void apiClient
-                        .addJobCardItem(jobCardId, {
-                          kind: 'REPAIR',
-                          repair_offering_slug: item.slug,
-                          quantity: 1,
-                        })
-                        .then(async () => {
-                          toggle(item.slug);
-                          await queryClient.invalidateQueries({ queryKey: queryKeys.jobCard(jobCardId) });
-                        })
-                        .catch((err: unknown) => {
-                          setError(err instanceof ApiError ? err.message : 'Could not add repair.');
-                        });
-                      return;
-                    }
-                    toggle(item.slug);
+                  quantity={quantity}
+                  minusDisabled={adjustItem.isPending}
+                  plusDisabled={quantity >= CART_QTY_MAX || adjustItem.isPending}
+                  onPlus={() => {
+                    track('repair_item_toggled', { slug: item.slug, delta: 1 });
+                    void adjustItem.mutate({ slug: item.slug, delta: 1 });
                   }}
-                  onRemove={() => void removeItem.mutate(item.slug)}
+                  onMinus={() => {
+                    track('repair_item_toggled', { slug: item.slug, delta: -1 });
+                    void adjustItem.mutate({ slug: item.slug, delta: -1 });
+                  }}
                 />
               );
             })}
@@ -229,7 +243,11 @@ export function RepairsCartScreen({
       <View style={styles.summary}>
         <Text style={styles.summaryLabel}>In cart</Text>
         <Text style={styles.summaryValue}>{summary}</Text>
-        {denyMode ? <Text style={styles.hint}>Tap Remove to drop a repair</Text> : null}
+        {count > 0 ? (
+          <Text style={styles.total} accessibilityLabel={`Cart total ${formatInr(totalMinor)}`}>
+            Total {formatInr(totalMinor)}
+          </Text>
+        ) : null}
       </View>
       {denyMode && jobCardId ? (
         <SecondaryButton label="Back to ⑦ Job card" onPress={() => router.push(`/job-card/${jobCardId}`)} />
@@ -274,5 +292,5 @@ const styles = StyleSheet.create({
   },
   summaryLabel: { ...type.label, color: colors.textMuted },
   summaryValue: { ...type.bodyMedium, color: colors.textStrong },
-  hint: { ...type.caption, color: colors.textMuted },
+  total: { ...type.price, color: colors.textStrong, marginTop: 4 },
 });

@@ -7,6 +7,7 @@
     "start": "expo start --lan --port 8081",
     "android": "expo start --android --port 8081",
     "ios": "expo start --ios --port 8081",
+    "eas-build-pre-install": "corepack enable",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "npx tsx src/lib/modeTabs.test.ts && npx tsx src/lib/homeContent.test.ts && npx tsx src/coordinators/generalServiceCoordinator.test.ts && npx tsx src/coordinators/serviceRepairCoordinator.test.ts && npx tsx src/coordinators/oneManCoordinator.test.ts && npx tsx src/coordinators/sosCoordinator.test.ts && npx tsx src/coordinators/inspectionRepairCoordinator.test.ts && npx tsx src/stores/vehicleDraftStore.test.ts && npx tsx src/stores/repairCartStore.test.ts && npx tsx src/lib/formatSlotLabel.test.ts && npx tsx src/components/FlowRail.test.ts && npx tsx src/lib/homeRepairCta.test.ts && npx tsx src/lib/osmMapHtml.test.ts && npx tsx src/lib/routeParam.test.ts && npx tsx src/lib/stackBack.test.ts && npx tsx src/lib/presentVehicle.test.ts && npx tsx src/lib/createFlowJobCard.test.ts && npx tsx src/linking/parseDeepLink.test.ts && npx tsx src/recovery/staleEstimate.test.ts && npx tsx src/lib/legal.test.ts && npx tsx src/features/booking/bookingCoordinator.test.ts"

@@ -19,7 +19,7 @@ import { colors, type } from '../../src/theme/tokens';
 export default function MakeScreen() {
   useEscapeBack();
   const router = useRouter();
-  const params = useLocalSearchParams<{ offering?: string; returnTo?: string; flow?: string }>();
+  const params = useLocalSearchParams<{ offering?: string; returnTo?: string; flow?: string; intent?: string }>();
   const makeId = useVehicleDraftStore((s) => s.makeId) ?? 'honda';
   const setMake = useVehicleDraftStore((s) => s.setMake);
   const setOfferingSlug = useJobCardFlowStore((s) => s.setOfferingSlug);
@@ -80,7 +80,10 @@ export default function MakeScreen() {
           if (!current.make && selected) setMake(selected.id, selected.label);
           router.push({
             pathname: '/vehicle/model',
-            params: passAlongParams(rail.flowParam, params.returnTo),
+            params: passAlongParams(
+              { ...rail.flowParam, offering: params.offering, intent: params.intent },
+              params.returnTo,
+            ),
           });
         }}
       />

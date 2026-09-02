@@ -601,6 +601,19 @@ export class ApiClient {
     });
   }
 
+  async patchJobCardItem(
+    jobCardId: string,
+    itemId: string,
+    body: { quantity: number },
+  ): Promise<JobCardEnvelope> {
+    return this.request(
+      'PATCH',
+      `/v1/job-cards/${jobCardId}/items/${itemId}`,
+      JobCardEnvelopeSchema,
+      { auth: 'optional', body },
+    );
+  }
+
   async deleteJobCardItem(jobCardId: string, itemId: string): Promise<JobCardEnvelope> {
     return this.request(
       'DELETE',

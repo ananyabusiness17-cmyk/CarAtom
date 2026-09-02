@@ -1,4 +1,3 @@
-import { useNavigation } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -9,12 +8,11 @@ import { colors, type } from '../../src/theme/tokens';
 
 export default function EntryRepairsCart() {
   useEscapeBack();
-  const navigation = useNavigation();
   const insets = useSafeAreaInsets();
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]}>
       <View style={styles.header}>
-        <StackBackButton navigation={navigation} />
+        <StackBackButton />
         <Text style={styles.title}>Repairs cart</Text>
       </View>
       <RepairsCartScreen />

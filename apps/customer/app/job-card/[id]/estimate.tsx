@@ -10,6 +10,7 @@ import { FlowRail } from '../../../src/components/FlowRail';
 import { FlowScreen } from '../../../src/components/FlowScreen';
 import { InspectionFlowRail } from '../../../src/components/InspectionFlowRail';
 import { PartsAdvanceSummary } from '../../../src/components/PartsAdvanceSummary';
+import { QtyStepper } from '../../../src/components/QtyStepper';
 import { SecondaryButton } from '../../../src/components/SecondaryButton';
 import { PolicyNote } from '../../../src/components/home/PolicyNote';
 import { HomeSkeleton } from '../../../src/components/home/HomeSkeleton';
@@ -18,24 +19,31 @@ import { PrimaryButton } from '../../../src/components/home/PrimaryButton';
 import { queryKeys } from '../../../src/coordinators/generalServiceCoordinator';
 import { routeFromInspectionRepairState } from '../../../src/coordinators/inspectionRepairCoordinator';
 import { hasRepairItems, nextRouteForJob } from '../../../src/coordinators/serviceRepairCoordinator';
+import { useEscapeBack } from '../../../src/hooks/useEscapeBack';
 import { track } from '../../../src/lib/analytics';
 import { apiClient } from '../../../src/lib/api';
 import { firstParam } from '../../../src/lib/routeParam';
 import { formatInr, newIdempotencyKey, partsAdvancePercent } from '../../../src/lib/formatMoney';
 import { useAuth } from '../../../src/providers/AuthProvider';
 import { StaleEstimateGuard } from '../../../src/recovery/StaleEstimateGuard';
+import { CART_QTY_MAX } from '../../../src/stores/repairCartLogic';
 import { useJobCardFlowStore } from '../../../src/stores/jobCardFlowStore';
+import { useRepairCartStore } from '../../../src/stores/repairCartStore';
 import { colors, type } from '../../../src/theme/tokens';
 
 export default function EstimateScreen() {
   const params = useLocalSearchParams<{ id: string; source?: string }>();
   const id = firstParam(params.id);
   const source = firstParam(params.source) || undefined;
+  useEscapeBack();
   const router = useRouter();
   const queryClient = useQueryClient();
   const { session } = useAuth();
   const flowKind = useJobCardFlowStore((s) => s.flowKind);
   const setFlowKind = useJobCardFlowStore((s) => s.setFlowKind);
+  const incrementCart = useRepairCartStore((s) => s.increment);
+  const decrementCart = useRepairCartStore((s) => s.decrement);
+  const removeFromCart = useRepairCartStore((s) => s.remove);
   const [error, setError] = useState<string | null>(null);
   const [stale, setStale] = useState(false);
   const returnTo = `/job-card/${id}/estimate`;
@@ -70,6 +78,11 @@ export default function EstimateScreen() {
   const totalMinor = isIr
     ? (irSummary?.total.amount_minor ?? 0)
     : (estimateQuery.data?.estimate.total.amount_minor ?? 0);
+  const linesTotal = lines.reduce(
+    (sum, line) => sum + ('is_included' in line && line.is_included ? 0 : line.amount_minor),
+    0,
+  );
+  const displayTotal = totalMinor > 0 ? totalMinor : linesTotal;
   const advanceMinor = irSummary?.parts_advance.amount_minor ?? 0;
   const partsSubtotal = lines
     .filter((line) => line.kind === 'PART')
@@ -82,6 +95,54 @@ export default function EstimateScreen() {
   useEffect(() => {
     if (repairs && !isIr) setFlowKind('gpr');
   }, [repairs, isIr, setFlowKind]);
+
+  const adjustLine = useMutation({
+    mutationFn: async ({
+      line,
+      delta,
+    }: {
+      line: { label: string; kind: string; repair_offering_slug?: string | null };
+      delta: 1 | -1;
+    }) => {
+      const items = jobQuery.data?.job_card.items ?? (await apiClient.getJobCard(id)).job_card.items;
+      const match = items.find(
+        (item) =>
+          item.kind === 'REPAIR' &&
+          (line.repair_offering_slug
+            ? item.repair_offering_slug === line.repair_offering_slug
+            : item.label === line.label),
+      );
+      if (!match) throw new Error('Could not find that repair on the job card.');
+      const current = match.quantity ?? 1;
+      if (delta > 0) {
+        const slug = match.repair_offering_slug ?? line.repair_offering_slug;
+        if (!slug) throw new Error('Could not find that repair on the job card.');
+        if (current >= CART_QTY_MAX) return apiClient.priceJobCard(id);
+        await apiClient.addJobCardItem(id, {
+          kind: 'REPAIR',
+          repair_offering_slug: slug,
+          quantity: 1,
+        });
+        incrementCart(slug);
+        return apiClient.priceJobCard(id);
+      }
+      if (current <= 1) {
+        await apiClient.deleteJobCardItem(id, match.id);
+        if (match.repair_offering_slug) removeFromCart(match.repair_offering_slug);
+      } else {
+        await apiClient.patchJobCardItem(id, match.id, { quantity: current - 1 });
+        if (match.repair_offering_slug) decrementCart(match.repair_offering_slug);
+      }
+      return apiClient.priceJobCard(id);
+    },
+    onSuccess: (priced) => {
+      queryClient.setQueryData(queryKeys.estimate(id), priced);
+      void queryClient.invalidateQueries({ queryKey: queryKeys.jobCard(id) });
+    },
+    onError: (err) => {
+      setError(err instanceof ApiError ? err.message : 'Could not update cart.');
+    },
+  });
 
   const accept = useMutation({
     mutationFn: async () => {
@@ -209,24 +270,61 @@ export default function EstimateScreen() {
         ) : (
           <PolicyNote>Indicative total · accept to continue booking</PolicyNote>
         )}
-        {lines.map((line) => (
-          <View key={`${line.label}-${line.kind}`} style={styles.line}>
-            <Text style={styles.lineLabel} numberOfLines={2}>
-              {line.label}
-            </Text>
-            {'is_included' in line && line.is_included ? (
-              <Text style={styles.included}>Included</Text>
-            ) : (
-              <Text
-                style={styles.price}
-                accessibilityRole="text"
-                accessibilityLabel={`Amount ${formatInr(line.amount_minor)}`}
-              >
-                {formatInr(line.amount_minor)}
-              </Text>
-            )}
-          </View>
-        ))}
+        {lines.map((line) => {
+          const editable = Boolean(repairs && !isIr && line.kind === 'REPAIR' && !line.is_included);
+          const offeringSlug =
+            'repair_offering_slug' in line && typeof line.repair_offering_slug === 'string'
+              ? line.repair_offering_slug
+              : undefined;
+          const jobItem = jobQuery.data?.job_card.items.find(
+            (item) =>
+              item.kind === 'REPAIR' &&
+              (offeringSlug
+                ? item.repair_offering_slug === offeringSlug
+                : item.label === line.label),
+          );
+          const quantity = jobItem?.quantity ?? 1;
+          return (
+            <View key={`${line.label}-${line.kind}`} style={styles.line}>
+              <View style={styles.lineCopy}>
+                <Text style={styles.lineLabel} numberOfLines={2}>
+                  {line.label}
+                </Text>
+                {'is_included' in line && line.is_included ? (
+                  <Text style={styles.included}>Included</Text>
+                ) : (
+                  <Text
+                    style={styles.price}
+                    accessibilityRole="text"
+                    accessibilityLabel={`Amount ${formatInr(line.amount_minor)}`}
+                  >
+                    {formatInr(line.amount_minor)}
+                  </Text>
+                )}
+              </View>
+              {editable ? (
+                <QtyStepper
+                  label={line.label}
+                  quantity={quantity}
+                  minusDisabled={adjustLine.isPending}
+                  plusDisabled={quantity >= CART_QTY_MAX || adjustLine.isPending}
+                  onMinus={() =>
+                    void adjustLine.mutate({
+                      line: { label: line.label, kind: line.kind, repair_offering_slug: offeringSlug },
+                      delta: -1,
+                    })
+                  }
+                  onPlus={() =>
+                    void adjustLine.mutate({
+                      line: { label: line.label, kind: line.kind, repair_offering_slug: offeringSlug },
+                      delta: 1,
+                    })
+                  }
+                />
+              ) : null}
+            </View>
+          );
+        })}
         {isIr && advanceMinor > 0 ? (
           <PartsAdvanceSummary
             partsSubtotalMinor={partsSubtotal}
@@ -235,15 +333,15 @@ export default function EstimateScreen() {
             percent={partsAdvancePercent(partsSubtotal, advanceMinor)}
           />
         ) : null}
-        {totalMinor ? (
+        {lines.length > 0 ? (
           <View style={[styles.line, styles.total]}>
-            <Text style={styles.totalLabel}>{isIr ? 'Total repair estimate' : repairs ? 'Indicative total' : 'Total'}</Text>
+            <Text style={styles.totalLabel}>{isIr ? 'Total repair estimate' : 'Estimated total'}</Text>
             <Text
               style={styles.totalValue}
               accessibilityRole="text"
-              accessibilityLabel={`Total ${formatInr(totalMinor)}`}
+              accessibilityLabel={`Total ${formatInr(displayTotal)}`}
             >
-              {formatInr(totalMinor)}
+              {formatInr(displayTotal)}
             </Text>
           </View>
         ) : null}
@@ -267,7 +365,9 @@ export default function EstimateScreen() {
           />
           <SecondaryButton label="View findings" onPress={() => router.push(`/job-card/${id}/findings`)} />
         </>
-      ) : repairs ? null : (
+      ) : repairs ? (
+        <SecondaryButton label="Edit cart" onPress={() => router.push(`/job-card/${id}/repairs-cart`)} />
+      ) : (
         <SecondaryButton label="Change job card" onPress={() => router.push(`/job-card/${id}`)} />
       )}
     </FlowScreen>
@@ -282,8 +382,10 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingVertical: 10,
+    gap: 8,
   },
-  lineLabel: { ...type.body, color: colors.text, flex: 1, paddingRight: 12 },
+  lineCopy: { flex: 1, paddingRight: 8, gap: 2 },
+  lineLabel: { ...type.body, color: colors.text, flexShrink: 1 },
   price: { ...type.bodyMedium, color: colors.textStrong },
   included: { ...type.caption, color: colors.success, fontWeight: '700' },
   total: { borderTopWidth: 1, borderTopColor: colors.border, marginTop: 8, paddingTop: 14 },

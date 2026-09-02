@@ -28,6 +28,13 @@ module.exports = () => {
           },
         ],
       },
+      extra: {
+        ...base.extra,
+        eas: {
+          ...(base.extra && base.extra.eas),
+          projectId: '9f092618-f894-4f92-b24d-00b050cf00be',
+        },
+      },
     },
   };
 };

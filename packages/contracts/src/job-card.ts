@@ -18,6 +18,7 @@ export const JobCardItemSchema = z.object({
   unit_price_minor: z.number().int(),
   currency: z.string().default('INR'),
   repair_offering_slug: z.string().nullable().optional(),
+  quantity: z.number().int().min(1).max(10).optional().default(1),
 });
 
 export const JobCardConcernSchema = z.object({

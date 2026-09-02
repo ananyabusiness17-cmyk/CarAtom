@@ -39,6 +39,20 @@ Configure (operator):
 - Alert if worker not connected to Redis
 - Admin undelivered outbox / dead-letter: check `/notifications/undelivered` daily; threshold is an ops wiki number (e.g. >20 DEAD_LETTER)
 
+## Expo Go / customer dev simulate
+
+The customer app **Simulate advisor estimate** button (`__DEV__` only) calls
+`POST /v1/dev/job-cards/{id}/simulate-advisor-estimate`. It does **not** need an admin token.
+
+On production Railway, set:
+
+```text
+ENABLE_DEV_SIMULATE=true
+```
+
+Then redeploy the **api** service. Without this flag the endpoint returns **404** (hidden).
+Turn it off again before a public launch if you do not want dev shortcuts on prod.
+
 GlitchTip/Sentry is post-MVP debt.
 
 ## Nixpacks fallback

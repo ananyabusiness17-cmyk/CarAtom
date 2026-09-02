@@ -89,18 +89,16 @@ export function RepairCarChoices({
   return (
     <View style={styles.wrap}>
       <Text style={styles.section}>Choose car</Text>
-      <ChoiceRow
-        label="Present car"
-        caption={presentLabel ?? 'No car saved yet — use New car'}
-        selected={hasPresent}
-        disabled={!hasPresent}
-        onPress={openPresentCar}
-      />
-      <ChoiceRow
-        label="New car"
-        caption="Make, model, year, then fuel"
-        onPress={openNewCar}
-      />
+      <View style={styles.row}>
+        <ChoiceRow
+          compact
+          label="Present car"
+          caption={presentLabel ?? 'None saved yet'}
+          selected={hasPresent}
+          onPress={openPresentCar}
+        />
+        <ChoiceRow compact label="New car" caption="Make · model · year" onPress={openNewCar} />
+      </View>
     </View>
   );
 }
@@ -108,4 +106,5 @@ export function RepairCarChoices({
 const styles = StyleSheet.create({
   wrap: { gap: 8 },
   section: { ...type.sectionTitle, color: colors.textStrong },
+  row: { flexDirection: 'row', gap: 8, alignItems: 'stretch' },
 });

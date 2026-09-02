@@ -30,7 +30,7 @@ export default function FuelScreen() {
   const offeringSlug = useJobCardFlowStore((s) => s.offeringSlug);
   const setJobCard = useJobCardFlowStore((s) => s.setJobCard);
   const rail = useFlowRail(5, 6, 3, 7);
-  const params = useLocalSearchParams<{ returnTo?: string }>();
+  const params = useLocalSearchParams<{ returnTo?: string; intent?: string }>();
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -43,7 +43,7 @@ export default function FuelScreen() {
       setError('Select make, model, year, and fuel first.');
       return;
     }
-    if (params.returnTo) {
+    if (params.intent === 'save' || params.returnTo) {
       router.replace(safeReturnTo(params.returnTo));
       return;
     }
@@ -61,7 +61,7 @@ export default function FuelScreen() {
         vehicle,
         symptoms: useJobCardFlowStore.getState().symptoms,
         photoAssetIds: useJobCardFlowStore.getState().photoAssetIds,
-        repairSlugs: kind === 'gpr' ? useRepairCartStore.getState().selectedSlugs : undefined,
+        repairQuantities: kind === 'gpr' ? useRepairCartStore.getState().quantities : undefined,
       });
       if (kind === 'gpr') useRepairCartStore.getState().clear();
       setJobCard(jobCardId, offering);
@@ -130,7 +130,13 @@ export default function FuelScreen() {
         <PolicyNote>Vehicle helps us assign the right technician and van.</PolicyNote>
       ) : null}
       <PrimaryButton
-        label={rail.isIr ? 'Continue to your details' : 'Use this car'}
+        label={
+          params.intent === 'save'
+            ? 'Save this car'
+            : rail.isIr
+              ? 'Continue to your details'
+              : 'Use this car'
+        }
         loading={busy}
         disabled={busy || !isDraftComplete(draft)}
         onPress={() => void submit()}

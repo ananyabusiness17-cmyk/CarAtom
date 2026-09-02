@@ -34,12 +34,6 @@ def _auth(sub: str | None = None) -> tuple[str, dict[str, str]]:
     return user_id, {"Authorization": f"Bearer {make_token(user_id)}"}
 
 
-def _admin_headers() -> dict[str, str]:
-    admin_id = str(uuid4())
-    promote_admin(admin_id)
-    return {"Authorization": f"Bearer {make_token(admin_id, phone='+919800000001')}"}
-
-
 def _slot_window() -> tuple[str, str]:
     start = date.today() + timedelta(days=1)
     end = start + timedelta(days=6)
@@ -111,7 +105,7 @@ def test_service_repair_advisor_e2e(client: TestClient) -> None:
 
     simulated = client.post(
         f"/v1/dev/job-cards/{job_id}/simulate-advisor-estimate",
-        headers=_admin_headers(),
+        headers=headers,
     )
     assert simulated.status_code == 200, simulated.text
     assert simulated.json()["estimate"]["total"]["amount_minor"] == 684900
@@ -172,7 +166,7 @@ def test_advisor_deny_loop(client: TestClient) -> None:
     )
     simulated = client.post(
         f"/v1/dev/job-cards/{job_id}/simulate-advisor-estimate",
-        headers=_admin_headers(),
+        headers=headers,
     )
     assert simulated.status_code == 200, simulated.text
     v2_id = simulated.json()["estimate"]["id"]
