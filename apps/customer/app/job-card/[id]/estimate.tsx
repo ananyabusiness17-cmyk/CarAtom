@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
+import { useCallback, useEffect, useState } from 'react';
 import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { ApiError } from '@caratom/api-client';
@@ -16,9 +16,13 @@ import { PolicyNote } from '../../../src/components/home/PolicyNote';
 import { HomeSkeleton } from '../../../src/components/home/HomeSkeleton';
 import { InlineBanner } from '../../../src/components/home/InlineBanner';
 import { PrimaryButton } from '../../../src/components/home/PrimaryButton';
-import { queryKeys } from '../../../src/coordinators/generalServiceCoordinator';
+import {
+  hasRepairItems,
+  nextRouteForJob,
+  nextRepairRouteFromDecision,
+  queryKeys,
+} from '../../../src/coordinators/serviceRepairCoordinator';
 import { routeFromInspectionRepairState } from '../../../src/coordinators/inspectionRepairCoordinator';
-import { hasRepairItems, nextRouteForJob } from '../../../src/coordinators/serviceRepairCoordinator';
 import { useEscapeBack } from '../../../src/hooks/useEscapeBack';
 import { track } from '../../../src/lib/analytics';
 import { apiClient } from '../../../src/lib/api';
@@ -52,6 +56,7 @@ export default function EstimateScreen() {
     queryKey: queryKeys.jobCard(id),
     queryFn: () => apiClient.getJobCard(id),
     enabled: Boolean(id),
+    refetchOnMount: 'always',
   });
   const isIr =
     source === 'inspection' ||
@@ -70,7 +75,31 @@ export default function EstimateScreen() {
     queryFn: () => apiClient.priceJobCard(id),
     enabled: Boolean(id) && !cached && !isIr,
     initialData: cached,
+    refetchOnMount: 'always',
   });
+
+  useFocusEffect(
+    useCallback(() => {
+      if (!id || isIr) return;
+      void jobQuery.refetch();
+      void estimateQuery.refetch();
+    }, [estimateQuery, id, isIr, jobQuery]),
+  );
+
+  useEffect(() => {
+    const envelope = jobQuery.data;
+    if (!envelope || isIr) return;
+    const action = envelope.flow_decision.required_next_action;
+    if (action === 'ACCEPT_ESTIMATE' || action === 'REQUEST_ESTIMATE') return;
+    const href = nextRouteForJob(
+      envelope.flow_decision,
+      { jobCardId: id },
+      envelope.job_card.items,
+    );
+    if (href && href !== `/job-card/${id}/estimate`) {
+      router.replace(href);
+    }
+  }, [id, isIr, jobQuery.data, router]);
 
   const irSummary = findingsQuery.data?.estimate_summary;
   const repairs = hasRepairItems(estimateQuery.data?.estimate.line_items);
@@ -158,8 +187,32 @@ export default function EstimateScreen() {
           newIdempotencyKey(`accept-${id}`),
         );
       }
-      const estimate = estimateQuery.data?.estimate;
-      if (!estimate) throw new Error('Missing estimate');
+      const envelope = await apiClient.getJobCard(id);
+      const action = envelope.flow_decision.required_next_action;
+      if (action === 'CREATE_ADVISOR_CASE') {
+        if (!session) {
+          router.push({ pathname: '/(auth)/phone', params: { returnTo } });
+          throw new Error('AUTH_REDIRECT');
+        }
+        return apiClient.createAdvisorCase(id, newIdempotencyKey(`advisor-${id}`));
+      }
+      if (
+        action === 'WAIT_FOR_ADVISOR' ||
+        action === 'VIEW_ADVISOR_STATUS' ||
+        action === 'ACCEPT_REVISED_ESTIMATE' ||
+        action === 'REJECT_REVISED_ESTIMATE'
+      ) {
+        throw new Error(`FLOW_REDIRECT:${action}`);
+      }
+      if (action !== 'ACCEPT_ESTIMATE') {
+        throw new Error(`FLOW_REDIRECT:${action}`);
+      }
+      const priced = await apiClient.priceJobCard(id);
+      queryClient.setQueryData(queryKeys.estimate(id), priced);
+      const estimate = priced.estimate;
+      if (estimate.status !== 'READY') {
+        throw new Error('STALE_ESTIMATE');
+      }
       if (repairs && !session) {
         router.push({ pathname: '/(auth)/phone', params: { returnTo } });
         throw new Error('AUTH_REDIRECT');
@@ -197,8 +250,29 @@ export default function EstimateScreen() {
         setError(navErr instanceof Error ? navErr.message : 'Could not continue from this estimate.');
       }
     },
-    onError: (err) => {
+    onError: async (err) => {
       if (err instanceof Error && err.message === 'AUTH_REDIRECT') return;
+      if (err instanceof Error && err.message === 'STALE_ESTIMATE') {
+        setStale(true);
+        void estimateQuery.refetch();
+        return;
+      }
+      if (err instanceof Error && err.message.startsWith('FLOW_REDIRECT:')) {
+        const action = err.message.slice('FLOW_REDIRECT:'.length);
+        const href = nextRepairRouteFromDecision(
+          {
+            policy: jobQuery.data?.flow_decision.policy ?? 'GENERAL_SERVICE',
+            advisor_requirement: jobQuery.data?.flow_decision.advisor_requirement ?? 'NOT_REQUIRED',
+            estimate_requirement: jobQuery.data?.flow_decision.estimate_requirement ?? 'PRE_BOOKING',
+            required_next_action: action,
+            allowed_actions: [],
+            blocking_reasons: [],
+          },
+          { jobCardId: id },
+        );
+        if (href) router.replace(href);
+        return;
+      }
       if (err instanceof ApiError && err.problem?.code === 'AUTH_REQUIRED') {
         router.push({ pathname: '/(auth)/phone', params: { returnTo } });
         return;
@@ -209,6 +283,27 @@ export default function EstimateScreen() {
         /does not match/i.test(err.message)
       ) {
         setStale(true);
+        return;
+      }
+      if (
+        err instanceof ApiError &&
+        err.problem?.code === 'INVALID_STATE_TRANSITION' &&
+        /not ready to accept/i.test(err.message)
+      ) {
+        const envelope = await apiClient.getJobCard(id).catch(() => null);
+        if (envelope) {
+          const href = nextRouteForJob(
+            envelope.flow_decision,
+            { jobCardId: id },
+            envelope.job_card.items,
+          );
+          if (href && href !== `/job-card/${id}/estimate`) {
+            router.replace(href);
+            return;
+          }
+        }
+        setStale(true);
+        void estimateQuery.refetch();
         return;
       }
       const allowed =
@@ -235,6 +330,14 @@ export default function EstimateScreen() {
 
   const loading = isIr ? findingsQuery.isLoading : estimateQuery.isLoading;
   const loadError = isIr ? findingsQuery.isError : estimateQuery.isError;
+  const nextAction = jobQuery.data?.flow_decision.required_next_action;
+  const submitLabel = isIr
+    ? 'Accept estimate'
+    : nextAction === 'CREATE_ADVISOR_CASE'
+      ? 'Request advisor callback'
+      : repairs
+        ? 'Submit estimate & request callback'
+        : 'Accept estimate';
 
   return (
     <FlowScreen>
@@ -347,9 +450,9 @@ export default function EstimateScreen() {
         ) : null}
       </ScrollView>
       <PrimaryButton
-        label={isIr ? 'Accept estimate' : repairs ? 'Submit estimate & request callback' : 'Accept estimate'}
+        label={submitLabel}
         loading={accept.isPending}
-        disabled={isIr ? !irSummary : !estimateQuery.data?.estimate}
+        disabled={isIr ? !irSummary : !estimateQuery.data?.estimate && nextAction === 'ACCEPT_ESTIMATE'}
         onPress={() => void accept.mutate()}
       />
       {isIr ? (

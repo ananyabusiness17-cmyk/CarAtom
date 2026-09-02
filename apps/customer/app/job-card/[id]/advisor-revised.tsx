@@ -32,14 +32,19 @@ export default function AdvisorRevisedScreen() {
   const estimate = caseQuery.data?.advisor_case.pending_estimate;
 
   const accept = useMutation({
-    mutationFn: () => {
-      if (!estimate) throw new Error('Missing estimate');
+    mutationFn: async () => {
+      const latest = await caseQuery.refetch();
+      const pending = latest.data?.advisor_case.pending_estimate;
+      if (!pending) throw new Error('Missing estimate');
+      if (pending.status !== 'READY') {
+        throw new Error('STALE_ESTIMATE');
+      }
       return apiClient.acceptEstimate(
         id,
-        estimate.id,
+        pending.id,
         {
-          expected_total_minor: estimate.total.amount_minor,
-          expected_content_hash: estimate.content_hash,
+          expected_total_minor: pending.total.amount_minor,
+          expected_content_hash: pending.content_hash,
         },
         newIdempotencyKey(`accept-v2-${id}`),
       );
@@ -51,6 +56,11 @@ export default function AdvisorRevisedScreen() {
       router.push(href ?? `/checkout/details?jobCardId=${id}`);
     },
     onError: (err) => {
+      if (err instanceof Error && err.message === 'STALE_ESTIMATE') {
+        setError('This estimate was updated. Pull to refresh and try again.');
+        void caseQuery.refetch();
+        return;
+      }
       setError(err instanceof ApiError ? err.message : 'Could not accept this estimate.');
     },
   });
