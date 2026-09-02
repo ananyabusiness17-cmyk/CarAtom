@@ -12,10 +12,9 @@ DEV_SIMULATE_ACTOR_ID = "00000000-0000-4000-8000-000000000099"
 
 
 def require_dev_environment() -> None:
-    if settings.env == "production":
-        raise DomainProblem(404, "NOT_FOUND", "Not found.")
-    if settings.env != "development" and not settings.enable_dev_simulate:
-        raise DomainProblem(404, "NOT_FOUND", "Not found.")
+    if settings.env == "development" or settings.enable_dev_simulate:
+        return
+    raise DomainProblem(404, "NOT_FOUND", "Not found.")
 
 
 def require_dev_admin(user: CurrentUser | None) -> CurrentUser:

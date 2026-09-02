@@ -262,3 +262,15 @@ def test_dev_simulate_hidden_in_production(client: TestClient, monkeypatch) -> N
     monkeypatch.setattr(settings, "enable_dev_simulate", False)
     response = client.post(f"/v1/dev/job-cards/{uuid4()}/simulate-advisor-estimate")
     assert response.status_code == 404
+
+
+def test_dev_simulate_allowed_in_production_when_flag_set(
+    client: TestClient, monkeypatch
+) -> None:
+    from app.config import settings
+
+    monkeypatch.setattr(settings, "env", "production")
+    monkeypatch.setattr(settings, "enable_dev_simulate", True)
+    response = client.post(f"/v1/dev/job-cards/{uuid4()}/simulate-advisor-estimate")
+    assert response.status_code == 404
+    assert response.json()["code"] == "NOT_FOUND"

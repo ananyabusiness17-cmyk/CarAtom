@@ -54,9 +54,9 @@ export default function AdvisorWaitingScreen() {
       void caseQuery.refetch();
     },
     onError: (err) => {
-      if (err instanceof ApiError && err.status === 404) {
+      if (err instanceof ApiError && err.status === 404 && err.message === 'Not found.') {
         setSimError(
-          'Dev simulate is off on this server. Set ENABLE_DEV_SIMULATE=true on Railway, redeploy the API, then reload the app.',
+          'Dev simulate is off on this server. Set ENABLE_DEV_SIMULATE=true on the Railway api service, redeploy api, then reload the app.',
         );
         return;
       }
