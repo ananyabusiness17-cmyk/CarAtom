@@ -345,6 +345,14 @@ class JobCardService:
                 "Repair price is published after inspection.",
                 allowed_actions=["FINALIZE", "VIEW_BOOKING"],
             )
+        priceable = {"EDITABLE", "ESTIMATE_READY", "PRICING", "PRICING_FAILED"}
+        if job_card.status not in priceable:
+            raise DomainProblem(
+                409,
+                "INVALID_STATE_TRANSITION",
+                "Job card is not ready for a new estimate.",
+                allowed_actions=state_machine._recovery_actions(job_card.status),
+            )
         if job_card.status == "ESTIMATE_READY":
             state_machine.transition(job_card, "PRICING")
         elif job_card.status != "PRICING":

@@ -118,6 +118,10 @@ def test_service_repair_advisor_e2e(client: TestClient) -> None:
     assert "notes" not in polled.json()["advisor_case"]
     assert polled.json()["advisor_case"]["pending_estimate_id"] == v2["id"]
 
+    repriced = client.post(f"/v1/job-cards/{job_id}/price", headers=headers)
+    assert repriced.status_code == 409
+    assert "ACCEPT_REVISED_ESTIMATE" in repriced.json()["allowed_actions"]
+
     accepted_v2 = client.post(
         f"/v1/job-cards/{job_id}/estimates/{v2['id']}/accept",
         headers={**headers, "Idempotency-Key": f"accept-v2-{job_id}"},

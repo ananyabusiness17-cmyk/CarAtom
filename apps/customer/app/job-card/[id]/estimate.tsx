@@ -69,11 +69,15 @@ export default function EstimateScreen() {
     enabled: Boolean(id) && isIr,
   });
 
+  const nextAction = jobQuery.data?.flow_decision.required_next_action;
+  const canPriceEstimate =
+    nextAction === 'ACCEPT_ESTIMATE' || nextAction === 'REQUEST_ESTIMATE';
+
   const cached = queryClient.getQueryData<PriceResponse>(queryKeys.estimate(id));
   const estimateQuery = useQuery({
     queryKey: queryKeys.estimate(id),
     queryFn: () => apiClient.priceJobCard(id),
-    enabled: Boolean(id) && !cached && !isIr,
+    enabled: Boolean(id) && !isIr && Boolean(jobQuery.data) && canPriceEstimate,
     initialData: cached,
     refetchOnMount: 'always',
   });
@@ -82,8 +86,10 @@ export default function EstimateScreen() {
     useCallback(() => {
       if (!id || isIr) return;
       void jobQuery.refetch();
-      void estimateQuery.refetch();
-    }, [estimateQuery, id, isIr, jobQuery]),
+      if (canPriceEstimate) {
+        void estimateQuery.refetch();
+      }
+    }, [canPriceEstimate, estimateQuery, id, isIr, jobQuery]),
   );
 
   useEffect(() => {
@@ -328,9 +334,8 @@ export default function EstimateScreen() {
     },
   });
 
-  const loading = isIr ? findingsQuery.isLoading : estimateQuery.isLoading;
-  const loadError = isIr ? findingsQuery.isError : estimateQuery.isError;
-  const nextAction = jobQuery.data?.flow_decision.required_next_action;
+  const loading = isIr ? findingsQuery.isLoading : jobQuery.isLoading || (canPriceEstimate && estimateQuery.isLoading);
+  const loadError = isIr ? findingsQuery.isError : jobQuery.isError || (canPriceEstimate && estimateQuery.isError);
   const submitLabel = isIr
     ? 'Accept estimate'
     : nextAction === 'CREATE_ADVISOR_CASE'
@@ -374,7 +379,8 @@ export default function EstimateScreen() {
           <PolicyNote>Indicative total · accept to continue booking</PolicyNote>
         )}
         {lines.map((line) => {
-          const editable = Boolean(repairs && !isIr && line.kind === 'REPAIR' && !line.is_included);
+          const editable =
+            Boolean(repairs && !isIr && line.kind === 'REPAIR' && !line.is_included && canPriceEstimate);
           const offeringSlug =
             'repair_offering_slug' in line && typeof line.repair_offering_slug === 'string'
               ? line.repair_offering_slug
