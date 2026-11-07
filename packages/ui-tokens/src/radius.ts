@@ -6,7 +6,8 @@ export const radius = {
   card: 16,
   tile: 20,
   sheet: 32,
-  folder: 22,
+  /** Folder-tab top corners — generous archway shape. */
+  folder: 28,
   pill: 999,
 } as const;
 
@@ -17,6 +18,14 @@ export const shadow = {
     shadowOpacity: 0.04,
     shadowRadius: 2,
     elevation: 2,
+  },
+  /** Raised elevation for the active folder-tab crest. */
+  folder: {
+    shadowColor: colors.textStrong,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.14,
+    shadowRadius: 14,
+    elevation: 8,
   },
   sheet: {
     shadowColor: colors.textStrong,

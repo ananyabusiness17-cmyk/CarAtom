@@ -16,6 +16,9 @@ class Settings(BaseSettings):
     env: str = "development"
     api_version: str = "1.0.0"
     enable_dev_simulate: bool = False
+    # HS256 local OTP login. Ignored unless ENV=development. Never set in production.
+    dev_local_otp: str = "123456"
+    dev_local_jwt_secret: str = ""
     sos_stub_dispatch_seconds: int = 90
     sos_ops_phone_e164: str = "+918012345678"
 

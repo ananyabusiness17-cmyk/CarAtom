@@ -1,8 +1,8 @@
 import { ApiError } from '@caratom/api-client';
 import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Animated, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { HomeMasthead } from '../../../src/components/home/HomeMasthead';
@@ -36,6 +36,9 @@ export default function HomeScreen() {
   const router = useRouter();
   const [tab, setTab] = useState<ModeTabId>('repair');
   const [error, setError] = useState<string | null>(null);
+  // Crossfade animation — briefly dips opacity when the active tab changes so
+  // the content switch feels like one connected system instead of a hard cut.
+  const contentFade = useRef(new Animated.Value(1)).current;
   const draft = useVehicleDraftStore();
   const setFlowKind = useJobCardFlowStore((s) => s.setFlowKind);
   const location = useLiveLocation(tab === 'sos');
@@ -111,9 +114,24 @@ export default function HomeScreen() {
             onChange={(next) => {
               setTab(next);
               track('home_tab_changed', { tab: next });
+              // Quick fade-out → fade-in so tapping a tab and the content
+              // updating feel like one transition, not a hard cut.
+              Animated.sequence([
+                Animated.timing(contentFade, {
+                  toValue: 0.45,
+                  duration: 65,
+                  useNativeDriver: true,
+                }),
+                Animated.timing(contentFade, {
+                  toValue: 1,
+                  duration: 190,
+                  useNativeDriver: true,
+                }),
+              ]).start();
             }}
           />
           <View style={styles.folderSheet}>
+            <Animated.View style={[styles.contentFadeWrap, { opacity: contentFade }]}>
             {loading ? <HomeSkeleton /> : null}
             {error ? (
               <View style={styles.pad}>
@@ -285,6 +303,7 @@ export default function HomeScreen() {
                 ) : null}
               </ScrollView>
             ) : null}
+            </Animated.View>
           </View>
         </View>
       </View>
@@ -313,6 +332,9 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.surface,
     zIndex: 0,
+  },
+  contentFadeWrap: {
+    flex: 1,
   },
   pad: { paddingHorizontal: 16, paddingTop: 16 },
   body: {

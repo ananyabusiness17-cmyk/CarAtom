@@ -9,7 +9,7 @@
     "ios": "expo start --ios --port 8082",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test": "npx tsx src/coordinators/fieldVisitCoordinator.test.ts && npx tsx src/stores/offlineQueueLogic.test.ts && npx tsx src/lib/requireTechnicianRole.test.ts && npx tsx src/lib/istDate.test.ts && npx tsx src/lib/osmMapHtml.test.ts"
+    "test": "npx tsx src/coordinators/fieldVisitCoordinator.test.ts && npx tsx src/stores/offlineQueueLogic.test.ts && npx tsx src/lib/requireTechnicianRole.test.ts && npx tsx src/lib/devLocalAuth.test.ts && npx tsx src/lib/istDate.test.ts && npx tsx src/lib/osmMapHtml.test.ts"
   },
   "dependencies": {
     "@caratom/analytics": "workspace:*",

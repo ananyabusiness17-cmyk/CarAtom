@@ -24,6 +24,7 @@ from app.modules.bookings.router import router as bookings_router
 from app.modules.catalog.repair_offerings_router import router as repair_offerings_router
 from app.modules.catalog.router import CatalogUnavailable, NotFound
 from app.modules.catalog.router import router as catalog_router
+from app.modules.dev.local_login_router import router as local_login_router
 from app.modules.dev.simulate_router import router as simulate_router
 from app.modules.dispatch.dev_router import router as dispatch_dev_router
 from app.modules.dispatch.router import router as dispatch_admin_router
@@ -130,6 +131,7 @@ app.include_router(technician_router, prefix="/v1/technician", tags=["technician
 app.include_router(media_router, prefix="/v1/media", tags=["media"])
 app.include_router(dispatch_admin_router, prefix="/v1/admin", tags=["admin-dispatch"])
 app.include_router(simulate_router, prefix="/v1/dev", tags=["dev"])
+app.include_router(local_login_router, prefix="/v1/dev", tags=["dev"])
 app.include_router(dispatch_dev_router, prefix="/v1/dev", tags=["dev"])
 
 

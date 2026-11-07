@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import time
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 import httpx
@@ -8,6 +9,10 @@ import jwt
 from jwt import PyJWK
 
 from app.config import settings
+
+DEV_LOCAL_KID = "caratom-dev-local"
+DEV_LOCAL_ISS = "caratom-dev-local"
+_DEV_LOCAL_SECRET_FALLBACK = "caratom-dev-local-not-for-production"
 
 _jwks_cache: dict[str, Any] = {"keys": [], "fetched_at": 0.0}
 _JWKS_TTL_SECONDS = 3600
@@ -55,11 +60,63 @@ def _key_for_kid(kid: str | None) -> dict[str, Any] | None:
     return None
 
 
+def _development_only() -> bool:
+    return settings.env.lower() == "development"
+
+
+def _dev_local_secret() -> str:
+    return settings.dev_local_jwt_secret or _DEV_LOCAL_SECRET_FALLBACK
+
+
+def encode_dev_local_token(*, sub: str, phone: str) -> str:
+    if not _development_only():
+        raise AuthError("UNAUTHORIZED", "Valid Supabase JWT required.")
+    now = datetime.now(UTC)
+    payload = {
+        "sub": sub,
+        "aud": settings.supabase_jwt_audience,
+        "iss": DEV_LOCAL_ISS,
+        "exp": now + timedelta(hours=12),
+        "iat": now,
+        "phone": phone,
+        "phone_verified": True,
+        "role": "authenticated",
+    }
+    return jwt.encode(
+        payload,
+        _dev_local_secret(),
+        algorithm="HS256",
+        headers={"kid": DEV_LOCAL_KID},
+    )
+
+
+def _decode_dev_local_token(token: str) -> dict[str, Any]:
+    if not _development_only():
+        raise AuthError("INVALID_TOKEN", "Valid Supabase JWT required.")
+    try:
+        claims = jwt.decode(
+            token,
+            _dev_local_secret(),
+            algorithms=["HS256"],
+            audience=settings.supabase_jwt_audience,
+            issuer=DEV_LOCAL_ISS,
+            options={"require": ["exp", "sub"]},
+        )
+    except jwt.InvalidTokenError as exc:
+        raise AuthError("INVALID_TOKEN", "Valid Supabase JWT required.") from exc
+    if not claims.get("sub"):
+        raise AuthError("INVALID_TOKEN", "Valid Supabase JWT required.")
+    return claims
+
+
 def decode_access_token(token: str) -> dict[str, Any]:
     try:
         header = jwt.get_unverified_header(token)
     except jwt.InvalidTokenError as exc:
         raise AuthError("INVALID_TOKEN", "Valid Supabase JWT required.") from exc
+
+    if header.get("kid") == DEV_LOCAL_KID:
+        return _decode_dev_local_token(token)
 
     jwk = _key_for_kid(header.get("kid"))
     if not jwk:

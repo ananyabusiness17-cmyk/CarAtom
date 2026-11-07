@@ -19,6 +19,10 @@ function resolveApiBaseUrl(): string {
   return fromEnv ?? 'http://localhost:8000';
 }
 
+export function apiBaseUrl(): string {
+  return resolveApiBaseUrl();
+}
+
 export const apiClient = new ApiClient({
   baseUrl: resolveApiBaseUrl(),
   getAccessToken: getStoredAccessToken,

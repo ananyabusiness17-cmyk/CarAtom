@@ -5,6 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { InlineBanner } from '../../src/components/InlineBanner';
 import { PrimaryButton } from '../../src/components/PrimaryButton';
+import { isDevLocalAuthEnabled } from '../../src/lib/devLocalAuth';
 import { useAuth } from '../../src/providers/AuthProvider';
 import { colors, type } from '../../src/theme/tokens';
 
@@ -45,7 +46,9 @@ export default function OtpScreen() {
         behavior={process.env.EXPO_OS === 'ios' ? 'padding' : undefined}
       >
         <Text style={styles.title}>Enter code</Text>
-        <Text style={styles.body}>Sent to {phone}</Text>
+        <Text style={styles.body}>
+          {isDevLocalAuthEnabled() ? `Local code for ${phone} is 123456.` : `Sent to ${phone}`}
+        </Text>
         {error ? <InlineBanner message={error} /> : null}
         <TextInput
           value={code}

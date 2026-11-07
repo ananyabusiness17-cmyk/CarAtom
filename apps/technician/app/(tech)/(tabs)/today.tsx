@@ -1,5 +1,5 @@
 import { useNavigation, useRouter } from 'expo-router';
-import { useLayoutEffect } from 'react';
+import { useLayoutEffect, useMemo } from 'react';
 import { Pressable, RefreshControl, StyleSheet, Text, View } from 'react-native';
 
 import { FlowRail } from '../../../src/components/FlowRail';
@@ -18,8 +18,10 @@ export default function TodayScreen() {
   const date = todayIstDate();
   const query = useTodayVisits(date);
   const me = useTechnicianMe();
-  const pendingIds = useOfflineQueueStore((s) =>
-    new Set(s.entries.filter((row) => row.status === 'pending').map((row) => row.visitId)),
+  const queueEntries = useOfflineQueueStore((s) => s.entries);
+  const pendingIds = useMemo(
+    () => new Set(queueEntries.filter((row) => row.status === 'pending').map((row) => row.visitId)),
+    [queueEntries],
   );
 
   useLayoutEffect(() => {

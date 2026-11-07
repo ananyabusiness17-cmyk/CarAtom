@@ -10,7 +10,7 @@ Metro runs on port **8082**. Scan the QR with Expo Go (SDK 52).
 
 Copy `.env.example` to `.env`. Never put `SUPABASE_SERVICE_ROLE_KEY` in this app. iOS push needs an EAS development build; Expo Go is enough for most field flows. `eas.json` channels: development / preview / production. Do not run live `eas update` until an Expo project ID exists.
 
-Demo technician: **Imran** · `+91 99000 11001`. Seed first:
+Demo technician: **Imran** · `+91 99000 11001`. In Expo Go (`__DEV__`), login skips Twilio: use code **123456**. Set `EXPO_PUBLIC_DEV_LOCAL_AUTH=0` to force real SMS. Seed first:
 
 ```powershell
 cd backend

@@ -5,6 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { InlineBanner } from '../../src/components/InlineBanner';
 import { PrimaryButton } from '../../src/components/PrimaryButton';
+import { DEV_LOCAL_PHONE, isDevLocalAuthEnabled } from '../../src/lib/devLocalAuth';
 import { useAuth } from '../../src/providers/AuthProvider';
 import { colors, type } from '../../src/theme/tokens';
 
@@ -20,7 +21,8 @@ export default function PhoneScreen() {
   const router = useRouter();
   const { returnTo } = useLocalSearchParams<{ returnTo?: string }>();
   const { sendOtp, configured } = useAuth();
-  const [phone, setPhone] = useState('+91');
+  const localAuth = isDevLocalAuthEnabled();
+  const [phone, setPhone] = useState(localAuth ? DEV_LOCAL_PHONE : '+91');
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -52,7 +54,11 @@ export default function PhoneScreen() {
         behavior={process.env.EXPO_OS === 'ios' ? 'padding' : undefined}
       >
         <Text style={styles.title}>Technician sign in</Text>
-        <Text style={styles.body}>We’ll text a 6-digit code. Use a field technician account.</Text>
+        <Text style={styles.body}>
+          {localAuth
+            ? 'Local login is on. Use Imran’s number; the code is 123456. No SMS is sent.'
+            : 'We’ll text a 6-digit code. Use a field technician account.'}
+        </Text>
         {!configured ? (
           <InlineBanner message="Supabase keys are not configured. OTP cannot be sent until EXPO_PUBLIC_SUPABASE_URL and ANON_KEY are set." />
         ) : null}
