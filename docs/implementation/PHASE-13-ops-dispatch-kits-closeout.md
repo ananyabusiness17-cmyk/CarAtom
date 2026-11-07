@@ -11,7 +11,7 @@
 
 1. This document (slices 0–7).
 2. [`01-product-constitution.md`](../architecture/01-product-constitution.md) and [`docs/AUDIT-REPORT.md`](../AUDIT-REPORT.md).
-3. `Vibe code principles/` — security and AI-verification; wins over external skills.
+3. `docs/Vibe code principles/` — security and AI-verification; wins over external skills.
 4. [`10-design-system.md`](../architecture/10-design-system.md) — tasteful light-blue accent `#5DB7E8` / `#176B9E`.
 5. Skills: `caratom-phase-frontend`, `caratom-security-gate`.
 

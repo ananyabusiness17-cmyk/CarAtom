@@ -42,7 +42,6 @@ const GLYPH: Record<
   { bg: string; fg: string; icon: keyof typeof Ionicons.glyphMap }
 > = {
   repair:  { bg: colors.brandSoft,   fg: colors.brandStrong, icon: 'construct'  },
-  general: { bg: colors.brandSoft,   fg: colors.brandStrong, icon: 'car-sport'  },
   oneman:  { bg: colors.successSoft, fg: colors.success,     icon: 'flash'      },
   sos:     { bg: colors.warningSoft, fg: colors.sosAccent,   icon: 'warning'    },
 };
@@ -71,7 +70,7 @@ export function ModeTabs({ active, onChange }: Props) {
   // Every animated property — container height, flex-grow, background colour,
   // shadow, icon lift/scale, and halo — is derived from one interpolated value.
   // useNativeDriver:false is required for layout and colour properties.
-  // For a 4-item row the JS-thread cost is negligible.
+  // For a 3-item row the JS-thread cost is negligible.
   const tabAnims = useRef(
     MODE_TABS.reduce<Record<ModeTabId, Animated.Value>>(
       (acc, t) => ({

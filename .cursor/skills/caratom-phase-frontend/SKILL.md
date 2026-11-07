@@ -9,7 +9,7 @@ Phase 1 of this project is already complete. Do not redo Phase 1.
 
 From **Phase 2 onward**, every implementation decision involving the frontend must be informed by:
 
-1. `Vibe code principles/` (highest-level product standard when it conflicts with external skills)
+1. `docs/Vibe code principles/` (highest-level product standard when it conflicts with external skills)
 2. Expo mobile/native guidance (`expo-overview`, `expo-router`, `expo-native-ui`, `expo-design-system`, `expo-animation`, `expo-data-fetching`)
 3. Vercel React Native and React guidance (`vercel-react-native-skills`, `vercel-react-best-practices`, `vercel-composition-patterns`)
 4. Anthropic `frontend-design`
@@ -22,7 +22,7 @@ Do not treat these as optional. Visual tokens and walkthrough UI live in `docs/a
 
 Before writing code:
 
-- Read the relevant `Vibe code principles`.
+- Read the relevant `docs/Vibe code principles`.
 - Review the relevant external skill guidance.
 - Understand the existing components and design system affected by the phase.
 - Identify reusable components/patterns before creating new ones.
@@ -34,7 +34,7 @@ Before writing code:
 
 While implementing:
 
-- Follow the project's `Vibe code principles`.
+- Follow the project's `docs/Vibe code principles`.
 - Follow native mobile UX conventions.
 - Follow the relevant Expo guidance.
 - Follow the relevant React Native engineering guidance.

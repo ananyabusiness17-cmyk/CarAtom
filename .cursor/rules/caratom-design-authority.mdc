@@ -11,11 +11,11 @@ Phase 1 is complete. Do not redo Phase 1 shells. Do not start Phase 2 unless the
 
 1. The **current phase spec** under `docs/implementation/` (aligned with architecture doc 10: tasteful light-blue accent `#5DB7E8` / brand-strong `#176B9E` — not a page-wide tint).
 2. `docs/architecture/01-product-constitution.md` and `docs/AUDIT-REPORT.md`.
-3. `Vibe code principles/` — this product's AI-verification, greenfield, and security standards. When they conflict with external skills, this folder wins.
+3. `docs/Vibe code principles/` — this product's AI-verification, greenfield, and security standards. When they conflict with external skills, this folder wins.
 4. `docs/architecture/10-design-system.md`, `06-frontend-architecture.md`, walkthrough HTML, and `docs/inspiration/` — visual and UX language.
 5. External skills — **expertise only**, not a second design system.
 
-Visual tokens are **not** defined inside `Vibe code principles/` (that folder is security and vibe-coding controls). Still consult it before frontend work, then apply architecture + phase tokens.
+Visual tokens are **not** defined inside `docs/Vibe code principles/` (that folder is security and vibe-coding controls). Still consult it before frontend work, then apply architecture + phase tokens.
 
 ## Stack freeze
 

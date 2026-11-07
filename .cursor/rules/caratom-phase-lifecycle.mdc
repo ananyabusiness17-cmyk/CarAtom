@@ -11,7 +11,7 @@ Load skill `caratom-phase-frontend` and follow it. Summary:
 
 ## Before writing code
 
-- Read relevant `Vibe code principles/` files and the current phase spec.
+- Read relevant `docs/Vibe code principles/` files and the current phase spec.
 - Review Expo / Vercel RN / frontend-design skills that apply.
 - Inspect existing components and tokens; reuse before creating new ones.
 - Note mobile UX, accessibility, and performance risks.

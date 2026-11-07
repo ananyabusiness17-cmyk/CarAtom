@@ -63,23 +63,27 @@ const catalogFixture: CatalogHomeResponse = CatalogHomeResponseSchema.parse({
 
 assertGlossary();
 
-if (MODE_TABS.length !== 4) {
-  throw new Error('Home must render four mode tabs');
+if (MODE_TABS.length !== 3) {
+  throw new Error('Home must render three mode tabs');
 }
 
-if (MODE_TABS[0]?.label !== 'General service + repair') {
-  throw new Error('Expected General service + repair first');
+if (MODE_TABS.some((tab) => tab.label === 'General service')) {
+  throw new Error('Standalone General service tab must stay removed');
 }
 
-const general = presentationForTab('general', catalogFixture);
+if (MODE_TABS[0]?.label !== 'General service + add-ons') {
+  throw new Error('Expected General service + add-ons first');
+}
+
 const repair = presentationForTab('repair', catalogFixture);
+const oneman = presentationForTab('oneman', catalogFixture);
 const sos = presentationForTab('sos', catalogFixture);
 
 if (priceLabelFromOffering(catalogFixture) !== 'From ₹2,999') {
-  throw new Error('gs-01 package card must show mocked API price');
+  throw new Error('Repair package card must show mocked API price');
 }
 
-if (general.policyNote === repair.policyNote) {
+if (oneman.policyNote === repair.policyNote) {
   throw new Error('Switching tabs must show different policy notes');
 }
 
@@ -91,11 +95,11 @@ if (tabAccentColor('sos') !== colors.sosAccent || sos.tabAccent !== colors.sosAc
   throw new Error('SOS tab must use sosAccent, not brand');
 }
 
-if (tabAccentColor('general') !== colors.brand) {
+if (tabAccentColor('repair') !== colors.brand) {
   throw new Error('Non-SOS tabs use brand accent');
 }
 
-if ('flow_policy' in general) {
+if ('flow_policy' in repair) {
   throw new Error('Tab presentation must not expose or infer flow_policy');
 }
 

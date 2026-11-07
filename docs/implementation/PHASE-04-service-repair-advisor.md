@@ -290,7 +290,7 @@ Phase 04 is the **second vertical slice** and the **first human-in-the-loop comm
 | [`docs/architecture/11-screen-specifications.md`](../architecture/11-screen-specifications.md) | Advisor status screen behavior |
 | [`PHASE-02-identity-design-catalog.md`](./PHASE-02-identity-design-catalog.md) | gpr-01 home, repair seed §18.4 |
 | [`PHASE-03-general-service-e2e.md`](./PHASE-03-general-service-e2e.md) | Reused checkout, vehicle picker, FlowDecision base |
-| [`Vibe code principles/GREENFIELD-PLAYBOOK.md`](../../Vibe%20code%20principles/GREENFIELD-PLAYBOOK.md) | Auth on admin routes, dev endpoint guard |
+| [`Vibe code principles/GREENFIELD-PLAYBOOK.md`](../Vibe%20code%20principles/GREENFIELD-PLAYBOOK.md) | Auth on admin routes, dev endpoint guard |
 
 ---
 
@@ -2671,7 +2671,7 @@ pnpm typecheck
 | Audit trail | job_card_events + admin publish audit | |
 | Dependency scan | CI unchanged from Phase 03 | |
 
-Reference: [`Vibe code principles/AUDIT-PLAYBOOK.md`](../../Vibe%20code%20principles/AUDIT-PLAYBOOK.md)
+Reference: [`Vibe code principles/AUDIT-PLAYBOOK.md`](../Vibe%20code%20principles/AUDIT-PLAYBOOK.md)
 
 ---
 

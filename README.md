@@ -6,7 +6,7 @@ Phase 01 delivers a **runnable empty platform**: four client shells, FastAPI hea
 
 Canonical architecture lives in [`docs/architecture`](docs/architecture/00-overview.md). Implementation phases: [`docs/implementation/README.md`](docs/implementation/README.md).
 
-**Phase 2+ frontend enforcement** (Cursor/agents): always-on rules in [`.cursor/rules/`](.cursor/rules/) and skills in [`.cursor/skills/`](.cursor/skills/). See [`AGENTS.md`](AGENTS.md). Do not add Tamagui, NativeWind, or React Native Reusables as app dependencies.
+**Phase 2+ frontend enforcement** (Cursor/agents): always-on rules in [`.cursor/rules/`](.cursor/rules/) and skills in [`.cursor/skills/`](.cursor/skills/). See [`docs/implementation/AGENTS.md`](docs/implementation/AGENTS.md). Do not add Tamagui, NativeWind, or React Native Reusables as app dependencies.
 
 ## Prerequisites
 

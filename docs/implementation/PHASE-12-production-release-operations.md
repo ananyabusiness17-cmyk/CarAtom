@@ -10,8 +10,8 @@
 **Authority chain:**
 
 1. [`docs/implementation/README.md`](./README.md) — Global production definition; Phase 12 Exit Gate = production-ready.
-2. [`Vibe code principles/AUDIT-PLAYBOOK.md`](../../Vibe%20code%20principles/AUDIT-PLAYBOOK.md) — Full E2E audit methodology for §16–§21.
-3. [`Vibe code principles/LEGAL-APPLICABILITY.md`](../../Vibe%20code%20principles/LEGAL-APPLICABILITY.md) — India DPDP §7; primary launch jurisdiction.
+2. [`Vibe code principles/AUDIT-PLAYBOOK.md`](../Vibe%20code%20principles/AUDIT-PLAYBOOK.md) — Full E2E audit methodology for §16–§21.
+3. [`Vibe code principles/LEGAL-APPLICABILITY.md`](../Vibe%20code%20principles/LEGAL-APPLICABILITY.md) — India DPDP §7; primary launch jurisdiction.
 4. Architecture docs **05, 07, 14, 15, 18** — Railway deploy, security, testing, roadmap release slice.
 5. [`docs/CARATOM-client-walkthrough.html`](../CARATOM-client-walkthrough.html) — E2E journey truth for §21 walkthrough audit.
 6. [`docs/AUDIT-REPORT.md`](../AUDIT-REPORT.md) — Resolved contradictions; store vs private distribution matrix.
@@ -239,9 +239,9 @@ Per [`18-implementation-roadmap.md`](../architecture/18-implementation-roadmap.m
 
 | Source | Use in Phase 12 |
 |--------|-----------------|
-| [`AUDIT-PLAYBOOK.md`](../../Vibe%20code%20principles/AUDIT-PLAYBOOK.md) | §16–§18 audit methodology |
-| [`LEGAL-APPLICABILITY.md`](../../Vibe%20code%20principles/LEGAL-APPLICABILITY.md) | §14 India legal; §15 privacy |
-| [`GREENFIELD-PLAYBOOK.md`](../../Vibe%20code%20principles/GREENFIELD-PLAYBOOK.md) | Launch checklist cross-ref |
+| [`AUDIT-PLAYBOOK.md`](../Vibe%20code%20principles/AUDIT-PLAYBOOK.md) | §16–§18 audit methodology |
+| [`LEGAL-APPLICABILITY.md`](../Vibe%20code%20principles/LEGAL-APPLICABILITY.md) | §14 India legal; §15 privacy |
+| [`GREENFIELD-PLAYBOOK.md`](../Vibe%20code%20principles/GREENFIELD-PLAYBOOK.md) | Launch checklist cross-ref |
 | [`05-technical-architecture.md`](../architecture/05-technical-architecture.md) | Railway topology, logging |
 | [`07-backend-architecture.md`](../architecture/07-backend-architecture.md) | Worker deploy, migrations |
 | [`14-security.md`](../architecture/14-security.md) | Secrets, retention, rate limits |
@@ -2054,7 +2054,7 @@ P0 prod bug (native/API):
 When executing Phase 12 in Cursor:
 
 1. Read this entire document before any production changes.
-2. Read [`AUDIT-PLAYBOOK.md`](../../Vibe%20code%20principles/AUDIT-PLAYBOOK.md) and [`LEGAL-APPLICABILITY.md`](../../Vibe%20code%20principles/LEGAL-APPLICABILITY.md) §7.
+2. Read [`AUDIT-PLAYBOOK.md`](../Vibe%20code%20principles/AUDIT-PLAYBOOK.md) and [`LEGAL-APPLICABILITY.md`](../Vibe%20code%20principles/LEGAL-APPLICABILITY.md) §7.
 3. **Never commit production secrets** — use Railway/Supabase dashboards only.
 4. Execute §8 tasks sequentially; production cutover tasks require explicit user confirmation.
 5. Run staging E2E three times before prod migrate.

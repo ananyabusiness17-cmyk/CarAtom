@@ -26,6 +26,14 @@ if (!choices.includes("flexDirection: 'row'") || !choices.includes('Present car'
   throw new Error('Present car and New car must sit side by side');
 }
 
+if (!src.includes('General Servicing + Health Report')) {
+  throw new Error('Add-ons tab must show the general servicing card');
+}
+
+if (src.includes('IncludedList') || src.includes('PackageCard')) {
+  throw new Error('Add-ons tab must not keep a second included-service card');
+}
+
 if (!src.includes('savedVehicleParams')) {
   throw new Error('Home header car must save the vehicle and return home');
 }

@@ -229,7 +229,7 @@ From [`01-product-constitution.md`](../architecture/01-product-constitution.md):
 
 ## Vibe Coding Principles
 
-Load from [`Vibe code principles/`](../../Vibe%20code%20principles/) at every phase exit (Section 19 of each phase doc):
+Load from [`docs/Vibe code principles/`](../Vibe%20code%20principles/) at every phase exit (Section 19 of each phase doc):
 
 | File | Use |
 |------|-----|

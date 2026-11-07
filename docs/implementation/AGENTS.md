@@ -8,7 +8,7 @@ When sources conflict:
 
 1. Current phase spec in `docs/implementation/` (aligned with architecture doc 10: tasteful light-blue accent `#5DB7E8` / `#176B9E`, not a page-wide tint).
 2. `docs/architecture/01-product-constitution.md` and `docs/AUDIT-REPORT.md`.
-3. `Vibe code principles/` — AI verification, greenfield, and security. Wins over external skills.
+3. `docs/Vibe code principles/` — AI verification, greenfield, and security. Wins over external skills.
 4. Architecture design docs (`10-design-system.md`, `06-frontend-architecture.md`), walkthrough, `docs/inspiration/`.
 5. External skills — expertise only, not a second UI stack.
 

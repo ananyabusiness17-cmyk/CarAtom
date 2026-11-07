@@ -1,6 +1,6 @@
 # CARATOM — System Architecture (superseded)
 
-**This draft is superseded by [`ARCHITECTURE.md`](./ARCHITECTURE.md).** Use that file for product flows, status machine, and implementation order.
+**This draft is superseded by [`docs/architecture/ARCHITECTURE.md`](../architecture/ARCHITECTURE.md).** Use that file for product flows, status machine, and implementation order.
 
 **Status:** Draft (historical)  
 **Audience:** Engineering  

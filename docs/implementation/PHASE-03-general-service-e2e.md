@@ -246,7 +246,7 @@ Phase 03 is the **first vertical slice** that proves the platform can sell somet
 | [`docs/architecture/14-security.md`](../architecture/14-security.md) | JWT, idempotency, ownership checks |
 | [`docs/architecture/15-testing-strategy.md`](../architecture/15-testing-strategy.md) | GS no-advisor E2E |
 | [`PHASE-02-identity-design-catalog.md`](./PHASE-02-identity-design-catalog.md) | gs-01 home spec, tokens, catalog slug |
-| [`Vibe code principles/GREENFIELD-PLAYBOOK.md`](../../Vibe%20code%20principles/GREENFIELD-PLAYBOOK.md) | Security-before-code checklist |
+| [`Vibe code principles/GREENFIELD-PLAYBOOK.md`](../Vibe%20code%20principles/GREENFIELD-PLAYBOOK.md) | Security-before-code checklist |
 
 ---
 
@@ -2482,7 +2482,7 @@ Complete before Phase 03 exit. Mark each item Pass / Fail / N/A.
 
 ## 19. Vibe Coding Principles Audit (table)
 
-Evaluate against [`Vibe code principles/`](../../Vibe%20code%20principles/). Missing companion files noted N/A per implementation README.
+Evaluate against [`docs/Vibe code principles/`](../Vibe%20code%20principles/). Missing companion files noted N/A per implementation README.
 
 | Control / Principle | Source | Phase 03 expectation | Pass criteria |
 |---------------------|--------|------------------------|---------------|

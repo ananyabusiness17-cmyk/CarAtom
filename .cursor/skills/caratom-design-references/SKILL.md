@@ -19,7 +19,7 @@ Current mobile stack: Expo SDK 52, Expo Router, React Native `StyleSheet`. Admin
 
 ## How to apply a pattern
 
-1. Follow the existing project architecture and `Vibe code principles/`.
+1. Follow the existing project architecture and `docs/Vibe code principles/`.
 2. Follow the current phase spec (aligned with architecture doc 10: light-blue accent used tastefully, not everywhere).
 3. If a Reusables/Tamagui/NativeWind idea is useful, reimplement it with the project's tokens and StyleSheet (mobile) or Tailwind (admin web only).
 4. Prefer reusing a pattern already in this repo over introducing an alternative.

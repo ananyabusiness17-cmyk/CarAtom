@@ -1,6 +1,6 @@
 # India legal launch pack
 
-**Not legal advice.** Replace bracketed placeholders with the registered entity before publishing. Engage counsel before launch (Phase 12 §24). Primary jurisdiction: India (Karnataka first). See [`Vibe code principles/LEGAL-APPLICABILITY.md`](../../Vibe%20code%20principles/LEGAL-APPLICABILITY.md) §7 (DPDP Act 2023).
+**Not legal advice.** Replace bracketed placeholders with the registered entity before publishing. Engage counsel before launch (Phase 12 §24). Primary jurisdiction: India (Karnataka first). See [`Vibe code principles/LEGAL-APPLICABILITY.md`](../Vibe%20code%20principles/LEGAL-APPLICABILITY.md) §7 (DPDP Act 2023).
 
 Published routes (admin web, unauthenticated):
 

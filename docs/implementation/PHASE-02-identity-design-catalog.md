@@ -1309,16 +1309,16 @@ Allow ops to verify seeded catalog without SQL. **Optional** — Phase 02 Exit G
 
 ### Vibe Coding principles (load at phase exit)
 
-Per [`docs/implementation/README.md`](./README.md), load from [`Vibe code principles/`](../../Vibe%20code%20principles/) before completing Exit Gate §26.
+Per [`docs/implementation/README.md`](./README.md), load from [`docs/Vibe code principles/`](../Vibe%20code%20principles/) before completing Exit Gate §26.
 
 | File | Phase 02 application |
 |------|---------------------|
-| [`QUICKSTART.md`](../../Vibe%20code%20principles/QUICKSTART.md) | Agent entry checklist before first commit |
-| [`GREENFIELD-PLAYBOOK.md`](../../Vibe%20code%20principles/GREENFIELD-PLAYBOOK.md) | Stage 3–5: auth, secrets, dependency scan |
-| [`VIBE-CODING-ARTICLE.md`](../../Vibe%20code%20principles/VIBE-CODING-ARTICLE.md) | Review AI-generated auth middleware and home UI |
-| [`AUDIT-PLAYBOOK.md`](../../Vibe%20code%20principles/AUDIT-PLAYBOOK.md) | Evidence-based pass/fail for §24–§26 audits |
-| [`CONTROLS-CATALOG-1.md`](../../Vibe%20code%20principles/CONTROLS-CATALOG-1.md) | Map AUTH-JWT, AUTH-SECRET controls to §24 |
-| [`LEGAL-APPLICABILITY.md`](../../Vibe%20code%20principles/LEGAL-APPLICABILITY.md) | India phone OTP / consumer data awareness (full compliance Phase 12) |
+| [`QUICKSTART.md`](../Vibe%20code%20principles/QUICKSTART.md) | Agent entry checklist before first commit |
+| [`GREENFIELD-PLAYBOOK.md`](../Vibe%20code%20principles/GREENFIELD-PLAYBOOK.md) | Stage 3–5: auth, secrets, dependency scan |
+| [`VIBE-CODING-ARTICLE.md`](../Vibe%20code%20principles/VIBE-CODING-ARTICLE.md) | Review AI-generated auth middleware and home UI |
+| [`AUDIT-PLAYBOOK.md`](../Vibe%20code%20principles/AUDIT-PLAYBOOK.md) | Evidence-based pass/fail for §24–§26 audits |
+| [`CONTROLS-CATALOG-1.md`](../Vibe%20code%20principles/CONTROLS-CATALOG-1.md) | Map AUTH-JWT, AUTH-SECRET controls to §24 |
+| [`LEGAL-APPLICABILITY.md`](../Vibe%20code%20principles/LEGAL-APPLICABILITY.md) | India phone OTP / consumer data awareness (full compliance Phase 12) |
 
 **Missing from repo** (use substitutes noted in README): `CONSTITUTION.md`, `CONTROLS-CATALOG-2.md`, `SECURITY_ANALYSIS.md`, `SCORING-AND-GATES.md`. Phase 02 audits reference present files only.
 
@@ -1546,7 +1546,7 @@ cd backend && pytest
 
 ### Audit A: Security
 
-Reference: [`14-security.md`](../architecture/14-security.md), [`CONTROLS-CATALOG-1.md`](../../Vibe%20code%20principles/CONTROLS-CATALOG-1.md).
+Reference: [`14-security.md`](../architecture/14-security.md), [`CONTROLS-CATALOG-1.md`](../Vibe%20code%20principles/CONTROLS-CATALOG-1.md).
 
 | Control | Pass criteria | Evidence |
 |---------|---------------|----------|
@@ -1563,7 +1563,7 @@ Reference: [`14-security.md`](../architecture/14-security.md), [`CONTROLS-CATALO
 
 ### Audit B: Vibe Coding (see also §19)
 
-Reference: [`Vibe code principles/QUICKSTART.md`](../../Vibe%20code%20principles/QUICKSTART.md), [`GREENFIELD-PLAYBOOK.md`](../../Vibe%20code%20principles/GREENFIELD-PLAYBOOK.md), [`VIBE-CODING-ARTICLE.md`](../../Vibe%20code%20principles/VIBE-CODING-ARTICLE.md).
+Reference: [`Vibe code principles/QUICKSTART.md`](../Vibe%20code%20principles/QUICKSTART.md), [`GREENFIELD-PLAYBOOK.md`](../Vibe%20code%20principles/GREENFIELD-PLAYBOOK.md), [`VIBE-CODING-ARTICLE.md`](../Vibe%20code%20principles/VIBE-CODING-ARTICLE.md).
 
 | Check | Pass criteria |
 |-------|---------------|

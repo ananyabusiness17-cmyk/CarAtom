@@ -268,8 +268,8 @@ The architecture roadmap ([`18-implementation-roadmap.md`](../architecture/18-im
 | [`18-implementation-roadmap.md`](../architecture/18-implementation-roadmap.md) | Phase 0 acceptance criteria |
 | [`AUDIT-REPORT.md`](../AUDIT-REPORT.md) | Four-app surface split; admin-mobile requirement |
 | [`README.md`](./README.md) | Phase dependency graph |
-| [`Vibe code principles/GREENFIELD-PLAYBOOK.md`](../../Vibe%20code%20principles/GREENFIELD-PLAYBOOK.md) | Checklists 3–4 (repo setup, auth foundation placeholder) |
-| [`Vibe code principles/VIBE-CODING-ARTICLE.md`](../../Vibe%20code%20principles/VIBE-CODING-ARTICLE.md) | AI code verification rules |
+| [`Vibe code principles/GREENFIELD-PLAYBOOK.md`](../Vibe%20code%20principles/GREENFIELD-PLAYBOOK.md) | Checklists 3–4 (repo setup, auth foundation placeholder) |
+| [`Vibe code principles/VIBE-CODING-ARTICLE.md`](../Vibe%20code%20principles/VIBE-CODING-ARTICLE.md) | AI code verification rules |
 
 ---
 
@@ -1767,7 +1767,7 @@ Run before Phase 01 exit gate. Mark each item PASS/FAIL/N/A.
 
 ## 19. Vibe Coding Principles Audit (table format)
 
-Evaluate against files in [`Vibe code principles/`](../../Vibe%20code%20principles/). Missing files noted as N/A per [`README.md`](./README.md).
+Evaluate against files in [`docs/Vibe code principles/`](../Vibe%20code%20principles/). Missing files noted as N/A per [`README.md`](./README.md).
 
 | Control / Principle | Source | Phase 01 expectation | Pass criteria |
 |---------------------|--------|----------------------|---------------|

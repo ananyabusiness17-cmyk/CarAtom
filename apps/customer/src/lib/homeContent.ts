@@ -28,20 +28,9 @@ export function presentationForTab(
   tab: ModeTabId,
   catalog: CatalogHomeResponse,
 ): TabPresentation {
-  const offering = catalog.sections.general_service.offering;
   const priceLabel = priceLabelFromOffering(catalog);
 
   switch (tab) {
-    case 'general':
-      return {
-        tab,
-        policyNote: offering.policy_note,
-        policyTone: 'brand',
-        priceLabel,
-        ctaLabel: 'Start job card',
-        ctaTone: 'brand',
-        tabAccent: colors.brand,
-      };
     case 'repair':
       return {
         tab,
